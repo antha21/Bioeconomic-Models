@@ -3,45 +3,236 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sources</title>
+    <title>References & Resources</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        navBg: '#0F172A', navHover: '#1E293B', navText: '#F8FAFC', navAccent: '#3B82F6',
+                        mainBg: '#F8FAFC', secBg: '#FFFFFF', altBg: '#F1F5F9',
+                        priAccent: '#2563EB', secAccent: '#06B6D4', hlAccent: '#7C3AED',
+                        textDark: '#0F172A', textMuted: '#475569'
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+
     <style>
-        :root { --primary-blue: #0A2540; --secondary-blue: #116466; --accent-teal: #2C9FA3; --light-bg: #F4F7F6; --text-dark: #333333; --text-light: #FFFFFF; --nav-height: 70px; --footer-height: 60px; }
-        body, html { margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--light-bg); color: var(--text-dark); height: 100%; }
-        nav { background-color: var(--primary-blue); height: var(--nav-height); padding: 0 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.2); position: fixed; width: 100%; top: 0; z-index: 1000; box-sizing: border-box; }
-        nav .logo { color: var(--text-light); font-size: 1.5rem; font-weight: bold; letter-spacing: 1px; }
-        nav ul { list-style: none; display: flex; margin: 0; padding: 0; }
-        nav ul li { margin-left: 2rem; }
-        nav ul li a { color: var(--text-light); text-decoration: none; font-weight: 500; font-size: 1.1rem; cursor: pointer; transition: color 0.3s ease, text-shadow 0.3s ease; }
-        nav ul li a:hover { color: var(--accent-teal); text-shadow: 0 0 8px rgba(44, 159, 163, 0.6); }
+        :root { 
+            --nav-bg: #0F172A;       
+            --nav-hover: #1E293B; 
+            --nav-text: #F8FAFC; 
+            --main-bg: #F8FAFC;      
+            --panel-bg: #FFFFFF;     
+            --accent-pri: #2563EB;   
+            --accent-sec: #06B6D4;   
+            --accent-hl: #7C3AED;
+            --text-dark: #0F172A;    
+            --text-muted: #475569;
+            --nav-height: 70px; 
+            --footer-height: 60px; 
+        }
+
+        body, html { 
+            margin: 0; padding: 0; 
+            font-family: 'Inter', sans-serif; 
+            background-color: var(--main-bg); 
+            color: var(--text-dark); 
+            height: 100%; 
+            overflow-x: hidden;
+            overflow-y: scroll; 
+        }
+
+        .academic-bg {
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(37, 99, 235, 0.04) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(6, 182, 212, 0.04) 0px, transparent 50%),
+                radial-gradient(at 50% 100%, rgba(124, 58, 237, 0.03) 0px, transparent 50%);
+            background-size: 100% 100%;
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1;
+        }
+        
+        .glass-nav { background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(59, 130, 246, 0.2); }
+        
         .page-wrapper { padding-top: var(--nav-height); min-height: calc(100vh - var(--footer-height)); display: flex; flex-direction: column; }
-        .page-section { flex: 1; padding: 3rem 10%; animation: fadeIn 0.4s ease-in-out; box-sizing: border-box; display: block; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        h2 { color: var(--primary-blue); border-bottom: 2px solid var(--accent-teal); padding-bottom: 0.5rem;}
-        footer { background-color: var(--primary-blue); color: var(--text-light); text-align: center; height: var(--footer-height); line-height: var(--footer-height); font-size: 0.9rem; width: 100%; }
-        ul.source-list { line-height: 1.8; font-size: 1.1rem; }
+        .page-section { flex: 1; padding: 3rem 10% 6rem 10%; animation: fadeIn 0.6s ease-out; box-sizing: border-box; display: block; max-width: 1400px; margin: 0 auto; w-full; }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .header-container { text-align: left; margin-bottom: 3.5rem; }
+        
+        .header-container h2 { 
+            font-size: 3rem; 
+            font-weight: 900; 
+            margin: 0 0 0.5rem 0; 
+            letter-spacing: -0.04em;
+            line-height: 1.1;
+            color: var(--text-dark);
+            display: inline-block;
+        }
+        
+        p.subtitle { font-size: 1.25rem; color: var(--text-muted); max-width: 800px; margin: 0; line-height: 1.6; font-weight: 400; }
+
+        /* Custom Card Styles for Citations */
+        .citation-card {
+            background: var(--panel-bg);
+            border: 1px solid #E2E8F0;
+            border-left: 4px solid var(--accent-pri);
+            border-radius: 8px;
+            padding: 1.5rem 2rem;
+            box-shadow: 0 4px 15px rgba(15, 23, 42, 0.03);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: flex-start;
+            gap: 1.25rem;
+        }
+        .citation-card:hover {
+            transform: translateX(6px);
+            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.08);
+            border-left-color: var(--accent-sec);
+        }
+        
+        /* Actionable Artifact Cards */
+        .artifact-card {
+            background: linear-gradient(145deg, #FFFFFF, #F8FAFC);
+            border: 1px solid #E2E8F0;
+            border-radius: 16px;
+            padding: 2.5rem;
+            box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.05);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            text-decoration: none;
+            height: 100%;
+        }
+        .artifact-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px -10px rgba(37, 99, 235, 0.15);
+            border-color: #BFDBFE;
+        }
+        .artifact-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: linear-gradient(90deg, var(--accent-pri), var(--accent-sec)); opacity: 0; transition: opacity 0.3s; }
+        .artifact-card:hover::before { opacity: 1; }
+
+        .artifact-icon {
+            width: 48px; height: 48px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        footer { background-color: var(--nav-bg); color: #94A3B8; text-align: center; height: 60px; line-height: 60px; font-size: 0.9rem; width: 100%; font-family: 'JetBrains Mono', monospace; border-top: 1px solid rgba(255,255,255,0.05); }
     </style>
 </head>
 <body>
-    <nav>
-        <div class="logo">BioEcon Models</div>
-        <ul>
-            <li><a href="index.html">Title Page</a></li>
-            <li><a href="about.html">History & Framework</a></li>
-            <li><a href="playground.html">Model Playground</a></li>
-            <li><a href="sources.html">Sources</a></li>
-        </ul>
+    
+    <div class="academic-bg"></div>
+
+    <nav class="glass-nav sticky inset-x-0 top-0 z-50 shadow-[0_4px_20px_rgba(15,23,42,0.2)] transform-gpu">
+        <div class="max-w-7xl mx-auto px-6 lg:px-8">
+            <div class="flex items-center justify-between h-[70px]">
+                <div class="flex-shrink-0 font-extrabold text-[1.5rem] tracking-tight text-navText">
+                    BioEcon<span class="text-secAccent">.</span>
+                </div>
+                <div class="hidden md:block">
+                    <ul class="ml-10 flex items-baseline space-x-10 m-0 p-0 list-none">
+                        <li><a href="index.html" class="text-[#CBD5E1] font-medium text-[1.05rem] hover:text-navText hover:drop-shadow-[0_0_12px_rgba(6,182,212,0.5)] transition-all duration-300">Home</a></li>
+                        <li><a href="about.html" class="text-[#CBD5E1] font-medium text-[1.05rem] hover:text-navText hover:drop-shadow-[0_0_12px_rgba(6,182,212,0.5)] transition-all duration-300">Model Framework</a></li>
+                        <li><a href="playground.html" class="text-[#CBD5E1] font-medium text-[1.05rem] hover:text-navText hover:drop-shadow-[0_0_12px_rgba(6,182,212,0.5)] transition-all duration-300">Playground</a></li>
+                        <li><a href="sources.html" class="text-navText font-medium text-[1.05rem] drop-shadow-[0_0_12px_rgba(6,182,212,0.5)] transition-all duration-300">References</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
     </nav>
-    <div class="page-wrapper">
+    
+    <div class="page-wrapper flex-grow">
         <section id="sources" class="page-section">
-            <h2>Key Sources & Literature</h2>
-            <ul class="source-list">
-                <li>Black, F., & Scholes, M. (1973). <em>The Pricing of Options and Corporate Liabilities</em>.</li>
-                <li>Conrad, J. M. (1999). <em>Resource Economics</em>.</li>
-                <li>Hilpisch, Y. (2018). <em>Python for Finance: Mastering Data-Driven Finance</em>.</li>
-                <li>International Pacific Halibut Commission. <em>Fishery Regulations (2025)</em>.</li>
-            </ul>
+            
+            <div class="border-b-[2px] border-[#E2E8F0] pb-8 w-full header-container">
+                 <h2>References & Artifacts</h2>
+                <p class="subtitle">
+                    Comprehensive documentation, academic literature, and open-source code repositories supporting the bioeconomic fishery models.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-12 mt-10">
+                
+                <div class="lg:col-span-2 flex flex-col gap-5">
+                    <h3 class="text-xl font-bold text-slate-800 mb-2 flex items-center gap-2">
+                        <svg class="w-6 h-6 text-priAccent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                        Literature Citations
+                    </h3>
+                    
+                    <div class="citation-card">
+                        <div class="flex-grow">
+                            <p class="text-lg text-slate-800 leading-relaxed">Black, F., & Scholes, M. (1973). <em class="font-semibold text-slate-900">The Pricing of Options and Corporate Liabilities</em>. Journal of Political Economy.</p>
+                        </div>
+                    </div>
+
+                    <div class="citation-card">
+                        <div class="flex-grow">
+                            <p class="text-lg text-slate-800 leading-relaxed">Conrad, J. M. (1999). <em class="font-semibold text-slate-900">Resource Economics</em>. Cambridge University Press.</p>
+                        </div>
+                    </div>
+
+                    <div class="citation-card">
+                        <div class="flex-grow">
+                            <p class="text-lg text-slate-800 leading-relaxed">Hilpisch, Y. (2018). <em class="font-semibold text-slate-900">Python for Finance: Mastering Data-Driven Finance</em>. O'Reilly Media.</p>
+                        </div>
+                    </div>
+
+                    <div class="citation-card">
+                        <div class="flex-grow">
+                            <p class="text-lg text-slate-800 leading-relaxed">International Pacific Halibut Commission. <em class="font-semibold text-slate-900">Fishery Regulations (2025)</em>. Official Documentation.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="lg:col-span-1 flex flex-col gap-6">
+                    <h3 class="text-xl font-bold text-slate-800 mb-2 flex items-center gap-2">
+                        <svg class="w-6 h-6 text-secAccent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 01-2 2z"></path></svg>
+                        Project Artifacts
+                    </h3>
+
+                    <a href="MATH 52039 Midterm.pdf" target="_blank" class="artifact-card group">
+                        <div class="artifact-icon bg-blue-50 text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors duration-300">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        </div>
+                        <h4 class="text-xl font-bold text-slate-900 mb-1">Profit and Population Dynamics</h4>
+                        <p class="text-sm font-semibold text-priAccent mb-3 tracking-wide">MATH 52039 RESEARCH PAPER</p>
+                        <p class="text-slate-500 mb-6 flex-grow leading-relaxed">Read the complete academic text outlining the bioeconomic modeling and real options analysis of a fishery.</p>
+                        <span class="font-bold text-sm uppercase tracking-widest text-slate-800 group-hover:text-priAccent transition-colors flex items-center">
+                            View Full Report <span class="ml-2 group-hover:translate-x-1 transition-transform">&rarr;</span>
+                        </span>
+                    </a>
+
+                    <a href="https://github.com" target="_blank" class="artifact-card group">
+                        <div class="artifact-icon bg-teal-50 text-teal-600 group-hover:bg-teal-600 group-hover:text-white transition-colors duration-300">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+                        </div>
+                        <h4 class="text-xl font-bold text-slate-900 mb-1">Source Code Repository</h4>
+                        <p class="text-sm font-semibold text-secAccent mb-3 tracking-wide">PYTHON & JAVASCRIPT</p>
+                        <p class="text-slate-500 mb-6 flex-grow leading-relaxed">Access the raw Python simulation scripts, differential equation solvers, and HTML frontend architecture.</p>
+                        <span class="font-bold text-sm uppercase tracking-widest text-slate-800 group-hover:text-secAccent transition-colors flex items-center">
+                            Open Repository <span class="ml-2 group-hover:translate-x-1 transition-transform">&rarr;</span>
+                        </span>
+                    </a>
+                    
+                </div>
+            </div>
+
         </section>
     </div>
-    <footer>&copy; 2026 Anthony Artino and Sarah Decipeda. All Rights Reserved.</footer>
+    
+    <footer>
+        &copy; 2026 Anthony Artino and Sarah Decipeda. All Rights Reserved.
+    </footer>
 </body>
 </html>
