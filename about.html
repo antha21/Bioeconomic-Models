@@ -69,8 +69,9 @@
         
         .header-container { text-align: left; margin-bottom: 3.5rem; }
         
+        /* ADJUSTED: Font size increased to 3.2rem for authority */
         .header-container h2 { 
-            font-size: 3rem; 
+            font-size: 3.2rem; 
             font-weight: 900; 
             margin: 0 0 0.5rem 0; 
             letter-spacing: -0.04em;
@@ -89,7 +90,6 @@
             padding: 3rem;
             box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.05);
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            margin-bottom: 2.5rem;
             position: relative;
             overflow: hidden;
         }
@@ -122,21 +122,24 @@
         
         .content-text:last-child { margin-bottom: 0; }
 
+        /* ADJUSTED: Clean, academic equation layout with premium hover scale */
         .math-block {
-            background: #F8FAFC;
-            border: 1px solid #E2E8F0;
-            border-radius: 8px;
-            padding: 1.5rem;
-            margin: 2rem 0;
+            padding: 1.5rem 0;
+            margin: 2.5rem auto;
             text-align: center;
-            font-size: 1.25rem;
+            font-size: 1.35rem;
             color: var(--text-dark);
-            overflow-x: auto;
+            max-width: 650px;
+            transition: transform 0.25s ease;
+        }
+        .math-block:hover {
+            transform: scale(1.01);
         }
 
+        /* ADJUSTED: Lighter, more refined highlight box */
         .highlight-box {
-            background: #EFF6FF;
-            border-left: 4px solid var(--accent-pri);
+            background: #F8FAFF;
+            border-left: 3px solid var(--accent-pri);
             padding: 1.5rem;
             border-radius: 0 8px 8px 0;
             margin: 2rem 0;
@@ -198,15 +201,18 @@
                 </p>
             </div>
 
+            <div class="my-12 border-t border-slate-200"></div>
+
             <div class="content-card card-math">
                 <h3 class="content-heading">
                     <svg class="w-7 h-7 text-secAccent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
                     Mathematical Framework
                 </h3>
                 
-                <h4 class="text-xl font-bold text-slate-800 mt-6 mb-3">Biological Population Dynamics</h4>
+                <h4 class="text-xl font-semibold text-slate-800 mt-6 mb-3 tracking-tight">Biological Population Dynamics</h4>
+                
                 <p class="content-text">
-                    The biological foundation of the system assumes the fish population follows classical logistic growth. However, this natural growth is constantly offset by a harvesting function. The rate of change of the fish population, \( P(t) \), with respect to time is given by the differential equation:
+                    The biological dynamics of the fish population are governed by a logistic growth model combined with a harvesting term. The resulting system is described by the following differential equation:
                 </p>
                 
                 <div class="math-block">
@@ -220,7 +226,7 @@
                     <li><strong>\( E(t) \)</strong>: The fishing effort deployed at time \( t \).</li>
                 </ul>
 
-                <h4 class="text-xl font-bold text-slate-800 mt-8 mb-3">Economic Volatility & Option Valuation</h4>
+                <h4 class="text-xl font-semibold text-slate-800 mt-8 mb-3 tracking-tight">Economic Volatility & Option Valuation</h4>
                 <p class="content-text">
                     To accurately simulate real-world fisheries, the economic parameters cannot remain static. The baseline profit function is evaluated as the market price per unit minus the operational cost required to harvest that unit. 
                 </p>
@@ -228,9 +234,13 @@
                     However, as the models advance, we introduce <strong>Geometric Brownian Motion</strong> to simulate random, realistic fluctuations in market demand and price. Ultimately, the framework bridges resource economics and quantitative finance by applying the <strong>Black-Scholes analytical formula</strong> to the fishery. In this paradigm, unharvested biomass is treated mathematically as a European call option, where the expected discounted profit \( V \) is evaluated based on market volatility and time to maturity.
                 </p>
 
-                <div class="math-block" style="background: #F1F5F9; border-color: #CBD5E1;">
+                <div class="math-block">
                     $$ V = P \cdot \Phi(d_1) - X e^{-\delta \tau} \cdot \Phi(d_2) $$
                 </div>
+                
+                <p class="content-text mt-8 border-t border-slate-100 pt-6">
+                    The interactive implementation of these models can be explored within the <strong>Model Playground</strong>, where users can adjust parameters and observe the resulting system dynamics in real time.
+                </p>
 
             </div>
 
