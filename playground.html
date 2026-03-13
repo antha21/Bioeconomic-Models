@@ -157,41 +157,78 @@
            MOBILE ADJUSTMENTS ONLY (Max Width 768px)
            ========================================= */
         @media (max-width: 768px) {
-            /* Adjust the main title size */
-            h1.text-5xl {
-                font-size: 2.5rem !important;
-                line-height: 1.1 !important;
+            /* Shrink the top 'Interactive Workspace' badge */
+            .glass-badge {
+                padding: 6px 14px !important;
+                font-size: 0.7rem !important;
+                margin-bottom: 1rem !important;
+            }
+
+            /* Make the header title much more compact */
+            .header-container h2 {
+                font-size: 1.75rem !important;
+                margin-bottom: 0.75rem !important;
             }
             
-            /* Adjust the subtitle above the main title */
-            h2.text-sm {
-                font-size: 0.75rem !important;
+            /* Adjust the subtitle paragraph */
+            p.subtitle {
+                font-size: 0.9rem !important;
+                padding: 0 0.5rem !important;
+                line-height: 1.5 !important;
+            }
+
+            /* Reduce the dead space between the header and the cards */
+            .header-container {
+                margin-bottom: 1.5rem !important;
             }
             
-            /* Adjust the description paragraph */
-            p.text-xl {
-                font-size: 1.125rem !important;
-                padding: 0 1rem !important;
+            /* Reduce side padding on the main wrapper */
+            .page-section {
+                padding-left: 5% !important;
+                padding-right: 5% !important;
+            }
+
+            /* Reduce the gap between cards (overrides Tailwind's gap-8) */
+            .grid {
+                gap: 1rem !important;
             }
             
-            /* Shrink the interactive playground button slightly */
-            a.px-8.py-4 {
-                padding: 0.75rem 1.5rem !important;
-                font-size: 1rem !important;
+            /* Tighten up the cards themselves */
+            .model-card {
+                padding: 1.25rem 1rem !important;
             }
             
+            /* Shrink the tiny card number label */
+            .card-number {
+                font-size: 0.65rem !important;
+                padding: 4px 10px !important;
+                margin-bottom: 0.75rem !important;
+            }
+
+            /* Shrink the card title */
+            .card-title {
+                font-size: 1.2rem !important;
+                margin-bottom: 0.5rem !important;
+            }
+            
+            /* Shrink the card description */
+            .card-desc {
+                font-size: 0.85rem !important;
+                margin-bottom: 1rem !important;
+                line-height: 1.4 !important;
+            }
+            
+            /* Shrink the launch link text */
+            .card-link-text {
+                font-size: 0.8rem !important;
+            }
+
             /* Remove the fixed height on the footer so the text can wrap naturally */
             footer {
                 height: auto !important;
                 line-height: 1.5 !important;
                 padding: 1rem !important;
                 font-size: 0.75rem !important;
-            }
-            
-            /* Add some vertical breathing room to the main container */
-            main {
-                padding-top: 3rem !important;
-                padding-bottom: 3rem !important;
             }
             
             /* Slightly reduce the 'BioEcon.' logo text size */
