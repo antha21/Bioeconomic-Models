@@ -529,7 +529,27 @@
                     options: { 
                         ...chartConfig,
                         plugins: { ...chartConfig.plugins, title: { display: true, text: 'Fish Population vs. Fishing Effort', font: { size: 16, weight: '700' }, color: '#0F172A', padding: {bottom: 15} } },
-                        scales: { x: { title: { display: true, text: 'Time (Days)' }, ticks: {maxTicksLimit: 10} }, y: { type: 'linear', display: true, position: 'left', title: { display: true, text: 'Fish Population (P)' } }, y1: { type: 'linear', display: true, position: 'right', title: { display: true, text: 'Fishing Effort (E)' }, grid: { drawOnChartArea: false } } }
+                        scales: { 
+                            x: { 
+                                title: { display: true, text: 'Time (Days)' }, 
+                                ticks: { 
+                                    maxTicksLimit: window.innerWidth < 768 ? 6 : 10, 
+                                    maxRotation: window.innerWidth < 768 ? 0 : undefined, 
+                                    font: { size: window.innerWidth < 768 ? 10 : 12 } 
+                                } 
+                            }, 
+                            y: { 
+                                type: 'linear', display: true, position: 'left', 
+                                title: { display: true, text: 'Fish Population (P)' },
+                                ticks: { font: { size: window.innerWidth < 768 ? 10 : 12 } }
+                            }, 
+                            y1: { 
+                                type: 'linear', display: true, position: 'right', 
+                                title: { display: true, text: 'Fishing Effort (E)' }, 
+                                grid: { drawOnChartArea: false },
+                                ticks: { font: { size: window.innerWidth < 768 ? 10 : 12 } }
+                            } 
+                        }
                     }
                 });
             }
@@ -552,7 +572,27 @@
                     options: { 
                         ...chartConfig,
                         plugins: { ...chartConfig.plugins, title: { display: true, text: 'Fish Population vs. Profit Margins', font: { size: 16, weight: '700' }, color: '#0F172A', padding: {bottom: 15} } },
-                        scales: { x: { title: { display: true, text: 'Time (Days)' }, ticks: {maxTicksLimit: 10} }, y: { type: 'linear', display: true, position: 'left', title: { display: true, text: 'Fish Population (P)' } }, y1: { type: 'linear', display: true, position: 'right', title: { display: true, text: 'Profit per Unit Catch ($)' }, grid: { drawOnChartArea: false } } }
+                        scales: { 
+                            x: { 
+                                title: { display: true, text: 'Time (Days)' }, 
+                                ticks: { 
+                                    maxTicksLimit: window.innerWidth < 768 ? 6 : 10, 
+                                    maxRotation: window.innerWidth < 768 ? 0 : undefined, 
+                                    font: { size: window.innerWidth < 768 ? 10 : 12 } 
+                                } 
+                            }, 
+                            y: { 
+                                type: 'linear', display: true, position: 'left', 
+                                title: { display: true, text: 'Fish Population (P)' },
+                                ticks: { font: { size: window.innerWidth < 768 ? 10 : 12 } }
+                            }, 
+                            y1: { 
+                                type: 'linear', display: true, position: 'right', 
+                                title: { display: true, text: 'Profit per Unit Catch ($)' }, 
+                                grid: { drawOnChartArea: false },
+                                ticks: { font: { size: window.innerWidth < 768 ? 10 : 12 } }
+                            } 
+                        }
                     }
                 });
             }
