@@ -537,12 +537,31 @@
                                     maxRotation: window.innerWidth < 768 ? 0 : undefined, 
                                     font: { size: window.innerWidth < 768 ? 10 : 12 } 
                                 } 
-                            }, 
+                            },
+							ticks: { 
+                                    callback: function(value) {
+                                        // Only apply the 'k' format if on mobile AND the number is 1000+
+                                        if (window.innerWidth < 768 && Math.abs(value) >= 1000) {
+                                            return (value / 1000).toFixed(1).replace(/\.0$/, '') + 'k';
+                                        }
+                                        // Otherwise, return the normal full number
+                                        return value;
+                                    },
+                                    font: { size: window.innerWidth < 768 ? 10 : 12 } 
+                                }
                             y: { 
                                 type: 'linear', display: true, position: 'left', 
                                 title: { display: true, text: 'Fish Population (P)' },
-                                ticks: { font: { size: window.innerWidth < 768 ? 10 : 12 } }
-                            }, 
+                                ticks: { 
+                                    callback: function(value) {
+                                        if (window.innerWidth < 768 && Math.abs(value) >= 1000) {
+                                            return (value / 1000).toFixed(1).replace(/\.0$/, '') + 'k';
+                                        }
+                                        return value;
+                                    },
+                                    font: { size: window.innerWidth < 768 ? 10 : 12 } 
+                                }
+                            },
                             y1: { 
                                 type: 'linear', display: true, position: 'right', 
                                 title: { display: true, text: 'Fishing Effort (E)' }, 
@@ -581,11 +600,30 @@
                                     font: { size: window.innerWidth < 768 ? 10 : 12 } 
                                 } 
                             }, 
+							ticks: { 
+                                    callback: function(value) {
+                                        // Only apply the 'k' format if on mobile AND the number is 1000+
+                                        if (window.innerWidth < 768 && Math.abs(value) >= 1000) {
+                                            return (value / 1000).toFixed(1).replace(/\.0$/, '') + 'k';
+                                        }
+                                        // Otherwise, return the normal full number
+                                        return value;
+                                    },
+                                    font: { size: window.innerWidth < 768 ? 10 : 12 } 
+                                }
                             y: { 
                                 type: 'linear', display: true, position: 'left', 
                                 title: { display: true, text: 'Fish Population (P)' },
-                                ticks: { font: { size: window.innerWidth < 768 ? 10 : 12 } }
-                            }, 
+                                ticks: { 
+                                    callback: function(value) {
+                                        if (window.innerWidth < 768 && Math.abs(value) >= 1000) {
+                                            return (value / 1000).toFixed(1).replace(/\.0$/, '') + 'k';
+                                        }
+                                        return value;
+                                    },
+                                    font: { size: window.innerWidth < 768 ? 10 : 12 } 
+                                }
+                            },
                             y1: { 
                                 type: 'linear', display: true, position: 'right', 
                                 title: { display: true, text: 'Profit per Unit Catch ($)' }, 
