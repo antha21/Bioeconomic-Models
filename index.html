@@ -110,7 +110,22 @@
                         <li><a href="sources.html" class="text-[#CBD5E1] font-medium text-[1.05rem] hover:text-navText hover:drop-shadow-[0_0_12px_rgba(6,182,212,0.5)] transition-all duration-300">References</a></li>
                     </ul>
                 </div>
+                <div class="md:hidden flex items-center">
+                    <button id="mobile-menu-btn" class="text-navText hover:text-secAccent focus:outline-none transition-colors">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </button>
+                </div>
             </div>
+        </div>
+        <div id="mobile-menu" class="hidden md:hidden absolute top-[70px] left-0 w-full bg-navBg/95 backdrop-blur-xl border-b border-white/10 shadow-2xl">
+            <ul class="flex flex-col px-6 py-6 space-y-4 text-center">
+                <li><a href="index.html" class="text-navText font-medium text-lg block hover:text-secAccent transition-colors">Home</a></li>
+                <li><a href="about.html" class="text-[#CBD5E1] font-medium text-lg block hover:text-secAccent transition-colors">Model Framework</a></li>
+                <li><a href="playground.html" class="text-[#CBD5E1] font-medium text-lg block hover:text-secAccent transition-colors">Playground</a></li>
+                <li><a href="sources.html" class="text-[#CBD5E1] font-medium text-lg block hover:text-secAccent transition-colors">References</a></li>
+            </ul>
         </div>
     </nav>
 
@@ -145,5 +160,15 @@
         &copy; 2026 Anthony Artino and Sarah Decipeda. All Rights Reserved.
     </footer>
 
+    <script>
+        const btn = document.getElementById('mobile-menu-btn');
+        const menu = document.getElementById('mobile-menu');
+        if(btn && menu) {
+            btn.addEventListener('click', () => {
+                menu.classList.toggle('hidden');
+            });
+        }
+    </script>
+    
 </body>
 </html>
