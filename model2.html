@@ -83,21 +83,21 @@
             box-shadow: 0 4px 10px rgba(37, 99, 235, 0.1);
         }
 
-    /* Keeps symbols inside parameter labels perfectly inline with the text */
-	.equation { 
-    		font-size: 1.0em; 
-    		color: var(--text-dark); 
-    		font-weight: 500; 
-    		margin-left: 2px; 
-	}
+        /* Keeps symbols inside parameter labels perfectly inline with the text */
+        .equation { 
+            font-size: 1.0em; 
+            color: var(--text-dark); 
+            font-weight: 500; 
+            margin-left: 2px; 
+        }
 
-	/* ONLY targets the main equation in the subtitle to push it to a new line with spacing */
-	p.subtitle .equation {
-    		font-size: 1.1em;
-    		display: block;
-    		margin-top: 0.85rem;
-   		margin-bottom: 0.25rem;
-	}   
+        /* ONLY targets the main equation in the subtitle to push it to a new line with spacing */
+        p.subtitle .equation {
+            font-size: 1.1em;
+            display: block;
+            margin-top: 0.85rem;
+            margin-bottom: 0.25rem;
+        }   
         
         .pulse-dot { width: 8px; height: 8px; background-color: var(--accent-pri); border-radius: 50%; animation: pulse 2s infinite; }
         @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.4); } 70% { box-shadow: 0 0 0 6px rgba(37, 99, 235, 0); } 100% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); } }
@@ -359,8 +359,8 @@
                             <input type="number" id="val_global_r" value="0.2" step="0.01" min="0">
                         </div>
                         <div class="input-group">
-                            <label for="val_global_c">Base Cost <span class="equation">\(c\)</span></label>
-                            <input type="number" id="val_global_c" value="0.05" step="0.01" min="0">
+                            <label for="val_global_delta">Degradation <span class="equation">\(\delta\)</span></label>
+                            <input type="number" id="val_global_delta" value="0.001" step="0.0001" min="0">
                         </div>
                     </div>
 
@@ -378,16 +378,16 @@
                             <input type="number" id="val_state_us" value="0.25" step="0.05" min="0" max="1">
                         </div>
                         <div class="input-group">
-                            <label for="val_state_ue">Emerg. Eq <span class="equation">\(u_e\)</span></label>
-                            <input type="number" id="val_state_ue" value="0.25" step="0.05" min="0" max="1">
+                            <label for="val_state_up">Emerg. Policy <span class="equation">\(u_p\)</span></label>
+                            <input type="number" id="val_state_up" value="0.60" step="0.05" min="0" max="1">
                         </div>
                         <div class="input-group">
-                            <label for="val_state_c">Base Cost <span class="equation">\(c\)</span></label>
-                            <input type="number" id="val_state_c" value="0.05" step="0.01" min="0">
+                            <label for="val_state_r">Regen Rate <span class="equation">\(r\)</span></label>
+                            <input type="number" id="val_state_r" value="0.2" step="0.01" min="0">
                         </div>
                         <div class="input-group">
-                            <label for="val_state_pmargin">Profit Margin</label>
-                            <input type="number" id="val_state_pmargin" value="2.5" step="0.1" min="0">
+                            <label for="val_state_sigma">Sust. Eff. <span class="equation">\(\sigma\)</span></label>
+                            <input type="number" id="val_state_sigma" value="0.1" step="0.01" min="0">
                         </div>
                     </div>
                     
@@ -462,7 +462,7 @@
         Chart.register(whiteBackgroundPlugin);
 
         // Custom Toolbar Functions
-        function getChart(id) { return chartInstance1; } // Simplified since there is only 1 chart now
+        function getChart(id) { return chartInstance1; } 
 
         function togglePan(id, btnId) {
             let chart = getChart(id);
@@ -511,8 +511,8 @@
         // Default values mapping for the Reset Button
         const defaultValues = {
             general: { val_f0: 100, val_c0: 30, val_n0: 0.9, val_up: 1.0, val_alpha: 0.35, val_beta: 0.05, val_gamma: 0.02, val_pop: 100 },
-            global: { val_policy_year: 15, val_global_us: 0.10, val_global_ue: 0.10, val_global_sigma: 0.1, val_global_r: 0.2, val_global_c: 0.05 },
-            state: { val_state_d_tol: 1.0, val_nature_thresh: 0.40, val_state_us: 0.25, val_state_ue: 0.25, val_state_c: 0.05, val_state_pmargin: 2.5 }
+            global: { val_policy_year: 15, val_global_us: 0.10, val_global_ue: 0.10, val_global_sigma: 0.1, val_global_r: 0.2, val_global_delta: 0.001 },
+            state: { val_state_d_tol: 1.0, val_nature_thresh: 0.40, val_state_us: 0.25, val_state_up: 0.60, val_state_r: 0.2, val_state_sigma: 0.1 }
         };
 
         function resetDefaults() {
@@ -553,6 +553,18 @@
             let datasets = [];
             let yAxisTitle = 'Health Index (0 to 1)';
 
+            // Set global unadjustable constants to match Python script
+            const alpha_base = 0.35;
+            const beta = 0.05;
+            const gamma_base = 0.02;
+            const p_margin = 2.5;
+            const c = 0.05;
+            const k1 = 0.8;
+            const k2 = 0.005;
+            const mu = 0.05;
+            const P_base = 100;
+            const D_base = 80;
+
             // --- OPTION 1: GENERAL MODEL (NATURE DYNAMICS) ---
             if (mode === 'general') {
                 const F0 = parseFloat(document.getElementById('val_f0').value);
@@ -567,26 +579,20 @@
                 // Background variables to keep system moving mathematically
                 const delta = 0.001, r = 0.2, K = 1.0, sigma = 0.1, p_margin = 2.5, c = 0.05;
                 const k1 = 0.8, k2 = 0.005, D = 80, mu = 0.05;
+                const us_val = 0.01, ue_val = 0.01; 
 
                 const F = new Array(steps); const N = new Array(steps); const C = new Array(steps); const Eq = new Array(steps);
                 F[0] = F0; N[0] = N0; C[0] = C0; Eq[0] = 0.3;
 
                 for(let i = 1; i < steps; i++) {
                     let prev_F = F[i-1], prev_N = N[i-1], prev_C = C[i-1], prev_Eq = Eq[i-1];
-                    let current_time = i * dt;
 
-                    let up, us_val, ue_val;
-                    if (current_time < 15) {
-                        up = 1.0; us_val = 0.01; ue_val = 0.01;
-                    } else {
-                        up = up_val; us_val = 0.1; ue_val = 0.1;
-                    }
-
-                    let dF = alpha * prev_C * prev_N * up - beta * P - gamma * prev_F;
-                    let dN = r * prev_N * (1 - prev_N / K) - delta * prev_F * up + sigma * us_val;
+                    let dF = alpha * prev_C * prev_N * up_val - beta * P - gamma * prev_F;
+                    let dN = r * prev_N * (1 - prev_N / K) - delta * prev_F * up_val + sigma * us_val;
                     let dC = p_margin * (beta * P) - c * prev_F - (us_val + ue_val) * prev_C;
                     let dEq = k1 * ue_val + k2 * Math.max(0, prev_F - D) - mu * prev_Eq;
 
+                    // Removed Math.min cap to allow auto-scaling
                     F[i] = Math.max(0, prev_F + (dF * dt));
                     N[i] = Math.max(0, prev_N + (dN * dt));
                     C[i] = Math.max(0, prev_C + (dC * dt));
@@ -610,15 +616,12 @@
                 const postUe = parseFloat(document.getElementById('val_global_ue').value);
                 const sigma = parseFloat(document.getElementById('val_global_sigma').value);
                 const r = parseFloat(document.getElementById('val_global_r').value);
-                const c = parseFloat(document.getElementById('val_global_c').value);
-
-                const beta = 0.05, P = 100, K = 1.0;
-                const p_margin = 2.5, k1 = 0.8, k2 = 0.005, D = 80, mu = 0.05;
+                const delta = parseFloat(document.getElementById('val_global_delta').value);
 
                 const scenarios = {
-                    'Developing (High Insecurity)': { y0: [40.0, 0.9, 10.0, 0.1], alpha: 0.20, gamma: 0.08, delta: 0.001, color: '#EF4444' },
-                    'Emerging (Avg Insecurity)': { y0: [85.0, 0.75, 25.0, 0.45], alpha: 0.28, gamma: 0.04, delta: 0.001, color: '#F97316' },
-                    'Developed (Low Insecurity)': { y0: [180.0, 0.5, 80.0, 0.85], alpha: 0.45, gamma: 0.02, delta: 0.003, color: '#10B981' }
+                    'Developing (High Insecurity)': { y0: [40.0, 0.9, 10.0, 0.1], sc_alpha: 0.20, sc_gamma: 0.08, sc_delta: delta, color: '#EF4444' },
+                    'Emerging (Avg Insecurity)': { y0: [85.0, 0.75, 25.0, 0.45], sc_alpha: 0.28, sc_gamma: 0.04, sc_delta: delta, color: '#F97316' },
+                    'Developed (Low Insecurity)': { y0: [180.0, 0.5, 80.0, 0.85], sc_alpha: 0.45, sc_gamma: 0.02, sc_delta: delta * 3, color: '#10B981' }
                 };
 
                 for (const [name, params] of Object.entries(scenarios)) {
@@ -634,11 +637,12 @@
 
                         let prev_F = F[i-1], prev_N = N[i-1], prev_C = C[i-1], prev_Eq = Eq[i-1];
                         
-                        let dF = params.alpha * prev_C * prev_N * up - beta * P - params.gamma * prev_F;
-                        let dN = r * prev_N * (1 - prev_N / K) - params.delta * prev_F * up + sigma * us;
-                        let dC = p_margin * (beta * P) - c * prev_F - (us + ue) * prev_C;
-                        let dEq = k1 * ue + k2 * Math.max(0, prev_F - D) - mu * prev_Eq;
+                        let dF = params.sc_alpha * prev_C * prev_N * up - beta * P_base - params.sc_gamma * prev_F;
+                        let dN = r * prev_N * (1 - prev_N / 1.0) - params.sc_delta * prev_F * up + sigma * us;
+                        let dC = p_margin * (beta * P_base) - c * prev_F - (us + ue) * prev_C;
+                        let dEq = k1 * ue + k2 * Math.max(0, prev_F - D_base) - mu * prev_Eq;
 
+                        // Removed Math.min cap to allow auto-scaling
                         F[i] = Math.max(0, prev_F + (dF * dt));
                         N[i] = Math.max(0, prev_N + (dN * dt));
                         C[i] = Math.max(0, prev_C + (dC * dt));
@@ -661,24 +665,24 @@
                 const dTol = parseFloat(document.getElementById('val_state_d_tol').value);
                 const nThresh = parseFloat(document.getElementById('val_nature_thresh').value);
                 const emergUs = parseFloat(document.getElementById('val_state_us').value);
-                const emergUe = parseFloat(document.getElementById('val_state_ue').value);
-                const c = parseFloat(document.getElementById('val_state_c').value);
-                const p_margin = parseFloat(document.getElementById('val_state_pmargin').value); 
-
-                const beta = 0.05, r = 0.2, K = 1.0, sigma = 0.1, mu = 0.05, k1 = 0.8;
-                const BASE_POP = 100, BASE_D = 80, BASE_k2 = 0.005;
+                const emergUp = parseFloat(document.getElementById('val_state_up').value);
+                const r = parseFloat(document.getElementById('val_state_r').value);
+                const sigma = parseFloat(document.getElementById('val_state_sigma').value);
+                
+                // Fetch delta from inputs or use baseline 0.001
+                const base_delta_input = 0.001; 
 
                 const scenarios = {
-                    'Louisiana (High Insecurity)': { pop: 4600000, base_y0: [40.0, 0.9, 10.0, 0.1], alpha: 0.20, gamma: 0.08, base_delta: 0.001, color: '#EF4444' },
-                    'Connecticut (Avg Insecurity)': { pop: 3600000, base_y0: [85.0, 0.75, 25.0, 0.45], alpha: 0.28, gamma: 0.04, base_delta: 0.001, color: '#F97316' },
-                    'Utah (Low Insecurity)': { pop: 3500000, base_y0: [180.0, 0.5, 80.0, 0.85], alpha: 0.45, gamma: 0.02, base_delta: 0.0004, color: '#10B981' }
+                    'Louisiana (High Insecurity)': { pop: 4600000, base_y0: [40.0, 0.9, 10.0, 0.1], sc_alpha: 0.20, sc_gamma: 0.08, base_delta: base_delta_input, color: '#EF4444' },
+                    'Connecticut (Avg Insecurity)': { pop: 3600000, base_y0: [85.0, 0.75, 25.0, 0.45], sc_alpha: 0.28, sc_gamma: 0.04, base_delta: base_delta_input, color: '#F97316' },
+                    'Utah (Low Insecurity)': { pop: 3500000, base_y0: [180.0, 0.5, 80.0, 0.85], sc_alpha: 0.45, sc_gamma: 0.02, base_delta: base_delta_input * 0.4, color: '#10B981' }
                 };
 
                 for (const [name, params] of Object.entries(scenarios)) {
-                    let scale = params.pop / BASE_POP;
-                    let D = BASE_D * scale;
-                    let delta = params.base_delta / scale;
-                    let k2 = BASE_k2 / scale;
+                    let scale = params.pop / P_base;
+                    let D = D_base * scale;
+                    let delta_scaled = params.base_delta / scale;
+                    let k2_scaled = k2 / scale;
 
                     const F = new Array(steps); const N = new Array(steps); const C = new Array(steps); const Eq = new Array(steps);
                     F[0] = params.base_y0[0] * scale; 
@@ -689,21 +693,18 @@
                     for(let i = 1; i < steps; i++) {
                         let prev_F = F[i-1], prev_N = N[i-1], prev_C = C[i-1], prev_Eq = Eq[i-1];
                         
-                        let up = 0.5, us = 0.25, ue = 0.25; 
+                        let up = 1.0, us = 0.01, ue = 0.01;
                         
-                        if (prev_F < D * dTol) {
-                            up = 0.8; us = 0.1; ue = 0.1;
-                        } else if (prev_N < nThresh) {
-                            up = 0.4; us = emergUs; ue = emergUe;
-                        } else if (prev_C < 20.0 * scale) {
-                            up = 0.6; us = 0.2; ue = 0.2;
+                        if (prev_F < D * dTol || prev_N < nThresh) {
+                            up = emergUp; us = emergUs; ue = 0.25;
                         }
 
-                        let dF = params.alpha * prev_C * prev_N * up - beta * params.pop - params.gamma * prev_F;
-                        let dN = r * prev_N * (1 - prev_N / K) - delta * prev_F * up + sigma * us;
+                        let dF = params.sc_alpha * prev_C * prev_N * up - beta * params.pop - params.sc_gamma * prev_F;
+                        let dN = r * prev_N * (1 - prev_N / 1.0) - delta_scaled * prev_F * up + sigma * us;
                         let dC = p_margin * (beta * params.pop) - c * prev_F - (us + ue) * prev_C;
-                        let dEq = k1 * ue + k2 * Math.max(0, prev_F - D) - mu * prev_Eq;
+                        let dEq = k1 * ue + k2_scaled * Math.max(0, prev_F - D) - mu * prev_Eq;
 
+                        // Removed Math.min cap to allow auto-scaling
                         F[i] = Math.max(0, prev_F + (dF * dt));
                         N[i] = Math.max(0, prev_N + (dN * dt));
                         C[i] = Math.max(0, prev_C + (dC * dt));
@@ -732,7 +733,14 @@
                         pan: { enabled: true, mode: 'x' }, 
                         zoom: { wheel: { enabled: false }, pinch: { enabled: true }, mode: 'x' } 
                     },
-                    title: { display: false } 
+                    title: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': ' + context.parsed.y.toFixed(3);
+                            }
+                        }
+                    }
                 },
                 scales: { 
                     x: { 
@@ -753,7 +761,8 @@
                         ticks: { 
                             callback: function(value) {
                                 if (window.innerWidth < 768 && Math.abs(value) >= 1000) { return (value / 1000).toFixed(1).replace(/\.0$/, '') + 'k'; }
-                                return value;
+                                // Fixes long decimal floating point UI issues
+                                return parseFloat(value.toFixed(2));
                             },
                             font: { size: window.innerWidth < 768 ? 10 : 12 } 
                         }
