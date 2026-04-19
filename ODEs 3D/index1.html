@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>ODE 3D - Main Menu</title>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&display=swap');
+
+    body { 
+        margin: 0; overflow: hidden; background: #000; 
+        font-family: 'Rajdhani', sans-serif; color: #fff; user-select: none; 
+    }
+    
+    .screen {
+        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        display: flex; flex-direction: column; justify-content: center; align-items: center;
+        background: radial-gradient(circle, #050a15 0%, #000 100%);
+        transition: opacity 0.5s;
+    }
+
+    /* Boot and Presentation Screens */
+    #bootScreen { z-index: 60; background: #000; cursor: pointer; }
+    #bootText { font-size: 24px; letter-spacing: 5px; animation: blink 1.5s infinite; color: #00f3ff; }
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+    #presentationScreen {
+        z-index: 50; background: #000; display: none; 
+        flex-direction: column; justify-content: center; align-items: center;
+    }
+    #presentationText {
+        font-size: 32px; color: #fff; letter-spacing: 6px; opacity: 0; text-align: center;
+    }
+
+    /* --- CINEMATIC 3D TITLE ANIMATION --- */
+    @keyframes cinematic3DReveal {
+        0% { 
+            opacity: 0; 
+            transform: perspective(1000px) translateZ(800px) rotateX(-15deg); 
+            filter: blur(20px);
+            text-shadow: 0 0 0 #0055ff;
+        }
+        30% {
+            opacity: 1;
+            filter: blur(5px);
+        }
+        100% { 
+            opacity: 1; 
+            transform: perspective(1000px) translateZ(0px) rotateX(0deg); 
+            filter: blur(0px);
+            /* Stacked shadows to create a physical 3D depth effect */
+            text-shadow: 
+                0 1px 0 #0044cc,
+                0 2px 0 #0033aa,
+                0 3px 0 #002288,
+                0 4px 0 #001166,
+                0 5px 0 #000044,
+                0 15px 30px rgba(0, 85, 255, 0.8),
+                0 25px 50px rgba(0, 243, 255, 0.4);
+        }
+    }
+    
+    #mainTitle { 
+        font-size: 130px; text-transform: uppercase; 
+        margin-bottom: 0; letter-spacing: 15px; color: #00aaff;
+        opacity: 0; z-index: 20;
+    }
+    .title-pop-active {
+        animation: cinematic3DReveal 4.5s cubic-bezier(0.15, 0.85, 0.3, 1) forwards;
+    }
+
+    .subtitle { 
+        color: #00f3ff; font-size: 28px; margin-bottom: 50px; letter-spacing: 8px; text-transform: uppercase; 
+        opacity: 0; transform: translateY(15px); transition: opacity 1.5s ease-out, transform 1.5s ease-out; 
+        z-index: 20;
+    }
+    .subtitle.visible { opacity: 1; transform: translateY(0); }
+
+    /* Menus (Scrollable) */
+    .menu-panel {
+        background: rgba(10, 15, 30, 0.8); border: 1px solid #0055ff; padding: 40px;
+        border-radius: 8px; box-shadow: 0 0 30px rgba(0,85,255,0.2); text-align: center;
+        width: 600px; display: none; flex-direction: column; gap: 20px;
+        opacity: 0; transition: opacity 0.8s ease-in;
+        max-height: 75vh; overflow-y: auto; z-index: 20;
+    }
+    .menu-panel.active { display: flex; opacity: 1; }
+
+    /* Custom Sci-Fi Scrollbar */
+    .menu-panel::-webkit-scrollbar { width: 8px; }
+    .menu-panel::-webkit-scrollbar-track { background: rgba(0,0,0,0.5); border-radius: 4px; }
+    .menu-panel::-webkit-scrollbar-thumb { background: #0055ff; border-radius: 4px; }
+    .menu-panel::-webkit-scrollbar-thumb:hover { background: #00f3ff; }
+
+    button {
+        background: rgba(0, 85, 255, 0.1); color: #00f3ff; border: 2px solid #0055ff; 
+        padding: 15px 40px; font-size: 28px; font-family: inherit; cursor: pointer; 
+        transition: 0.2s; text-transform: uppercase; font-weight: bold; border-radius: 4px;
+        flex-shrink: 0;
+    }
+    button:hover { background: #0055ff; color: #fff; box-shadow: 0 0 20px rgba(0,85,255,0.8); transform: scale(1.02); }
+
+    .instructions { 
+        font-size: 22px; color: #aaddff; line-height: 1.8; text-align: center; 
+        background: rgba(0,0,0,0.5); padding: 30px 20px; border-radius: 4px; 
+        border-top: 2px solid #0055ff; border-bottom: 2px solid #0055ff;
+    }
+    
+    .level-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+    .level-btn { font-size: 20px; padding: 15px; }
+    
+    .credit-block { margin-bottom: 25px; line-height: 1.4; }
+    .credit-title { color: #00f3ff; font-size: 18px; letter-spacing: 2px; }
+    .credit-name { color: #fff; font-size: 26px; font-weight: bold; }
+
+</style>
+</head>
+<body>
+
+    <div class="screen" id="bootScreen" onclick="initMenu()">
+        <div id="bootText">PRESS ANYWHERE TO INITIALIZE SYSTEM</div>
+    </div>
+
+    <div class="screen" id="presentationScreen">
+        <div id="presentationText">A MODELING PROJECT ENTERTAINMENT PRESENTS</div>
+    </div>
+
+    <div class="screen" id="mainBg">
+        <h1 id="mainTitle">ODE 3D</h1>
+        <div class="subtitle" id="mainSubtitle">System Restore</div>
+
+        <div class="menu-panel" id="rootMenu">
+            <button onclick="navTo('levelMenu')">START SIMULATION</button>
+            <button onclick="navTo('howToMenu')">DATABASE / CONTROLS</button>
+            <button onclick="navTo('creditsMenu')">CREDITS</button>
+        </div>
+
+        <div class="menu-panel" id="levelMenu">
+            <h2 style="margin:0 0 10px 0; color:#fff; flex-shrink: 0;">SELECT SECTOR</h2>
+            <div class="level-grid">
+                <button class="level-btn" onclick="launchGame(1)">Level 1: Food Dynamics<br><span style="font-size:14px; color:#888;">Time: 2:00</span></button>
+                <button class="level-btn" onclick="launchGame(2)">Level 2: Resource Health<br><span style="font-size:14px; color:#888;">Time: 4:00</span></button>
+                <button class="level-btn" onclick="launchGame(3)">Level 3: Econ Capital<br><span style="font-size:14px; color:#888;">Time: 3:00</span></button>
+                <button class="level-btn" onclick="launchGame(4)">Level 4: Equity Index<br><span style="font-size:14px; color:#888;">Time: 3:00</span></button>
+            </div>
+            <button style="border-color:#555; color:#aaa; margin-top:10px;" onclick="navTo('rootMenu')">BACK</button>
+        </div>
+
+        <div class="menu-panel" id="howToMenu">
+            <h2 style="margin:0 0 10px 0; color:#fff; flex-shrink: 0;">OPERATING MANUAL</h2>
+            <div class="instructions">
+                <b>MOVEMENT:</b> Arrow Keys<br>
+                <b>COMBAT:</b> Spacebar to fire (Max 15 Ammo)<br>
+                <b>SYSTEM:</b> 'P' or 'ESC' to Pause<br><br>
+                Neutralize hostile drones to recover Ammo (+5) and Health (+25). Collect all scattered equation parameters and access the central Terminal to rebuild the governing ODE before time runs out.
+            </div>
+            <button style="border-color:#555; color:#aaa;" onclick="navTo('rootMenu')">BACK</button>
+        </div>
+
+        <div class="menu-panel" id="creditsMenu">
+            <h2 style="margin:0 0 20px 0; color:#fff; flex-shrink: 0;">CREDITS</h2>
+            <div class="instructions" style="background: transparent; border: none; padding: 10px; margin-bottom: 0;">
+                <div class="credit-block">
+                    <div class="credit-title">LEAD DEVELOPER & OPTIMIZATION</div>
+                    <div class="credit-name">Anthony Artino</div>
+                </div>
+                <div class="credit-block">
+                    <div class="credit-title">BIOECONOMIC MODELING & RESEARCH</div>
+                    <div class="credit-name">Sarah Decipeda</div>
+                </div>
+                <div class="credit-block">
+                    <div class="credit-title">SYSTEMS ARCHITECTURE</div>
+                    <div class="credit-name">Anthony Artino</div>
+                </div>
+            </div>
+            <button style="border-color:#555; color:#aaa; margin-top:10px;" onclick="navTo('rootMenu')">BACK</button>
+        </div>
+    </div>
+
+<script>
+    const sndClick = new Audio("file:///C:/Users/anthp/OneDrive/Desktop/ODEs%203D/Clicker.mp3");
+    const bgm = new Audio("file:///C:/Users/anthp/OneDrive/Desktop/ODEs%203D/PDEs.mp3");
+    bgm.loop = true;
+    bgm.volume = 0.6;
+
+    // Check if we've already seen the intro sequence in this session
+    window.onload = () => {
+        if (sessionStorage.getItem('introSeen') === 'true') {
+            document.getElementById('bootText').innerText = "PRESS ANYWHERE TO RE-ENGAGE SYSTEM";
+        }
+    };
+
+    function playClick() {
+        let c = sndClick.cloneNode();
+        c.volume = 0.5;
+        c.play().catch(()=>{});
+    }
+
+    function initMenu() {
+        document.getElementById('bootScreen').style.transition = "opacity 0.4s ease-out";
+        document.getElementById('bootScreen').style.opacity = '0';
+        
+        setTimeout(() => { 
+            document.getElementById('bootScreen').style.display = 'none'; 
+            bgm.play().catch(()=>{});
+
+            // If we've already seen the intro, skip straight to the main menu
+            if (sessionStorage.getItem('introSeen') === 'true') {
+                document.getElementById('mainTitle').classList.add('title-pop-active');
+                setTimeout(() => {
+                    document.getElementById('mainSubtitle').classList.add('visible');
+                    let rootMenu = document.getElementById('rootMenu');
+                    rootMenu.classList.add('active');
+                    rootMenu.style.transition = "opacity 0.8s ease-in";
+                    rootMenu.style.opacity = "1";
+                }, 800);
+            } 
+            // Otherwise, play the full studio intro
+            else {
+                sessionStorage.setItem('introSeen', 'true');
+                let presScreen = document.getElementById('presentationScreen');
+                let presText = document.getElementById('presentationText');
+                presScreen.style.display = 'flex';
+
+                // Speed up the presentation text
+                setTimeout(() => { 
+                    presText.style.transition = "opacity 0.5s ease-in-out, transform 2.5s ease-out";
+                    presText.style.opacity = '1'; 
+                    presText.style.transform = 'scale(1.05)';
+                }, 100);
+
+                // Hold for 2 seconds, then fade out
+                setTimeout(() => {
+                    presText.style.opacity = '0';
+                    setTimeout(() => {
+                        presScreen.style.transition = "opacity 0.5s ease-out";
+                        presScreen.style.opacity = '0';
+                        setTimeout(() => {
+                            presScreen.style.display = 'none';
+                            
+                            // Trigger the Cinematic 3D Title Reveal!
+                            document.getElementById('mainTitle').classList.add('title-pop-active');
+                            
+                            // Wait for the 3D glide to mostly settle before showing the menu (3 seconds)
+                            setTimeout(() => {
+                                document.getElementById('mainSubtitle').classList.add('visible');
+                                let rootMenu = document.getElementById('rootMenu');
+                                rootMenu.classList.add('active');
+                                rootMenu.style.opacity = "1";
+                            }, 3000);
+
+                        }, 500); 
+                    }, 500); 
+                }, 2000); 
+            }
+        }, 400);
+    }
+
+    function navTo(panelId) {
+        playClick();
+        document.querySelectorAll('.menu-panel').forEach(p => p.classList.remove('active'));
+        document.getElementById(panelId).classList.add('active');
+        document.getElementById(panelId).scrollTop = 0;
+    }
+
+    function launchGame(level) {
+        playClick();
+        document.body.style.transition = "opacity 0.5s";
+        document.body.style.opacity = "0";
+        
+        let volFade = setInterval(() => {
+            if(bgm.volume > 0.05) bgm.volume -= 0.05;
+            else { clearInterval(volFade); bgm.pause(); }
+        }, 50);
+
+        setTimeout(() => {
+            window.location.href = `game.html?level=${level}`;
+        }, 600);
+    }
+</script>
+</body>
+</html>
