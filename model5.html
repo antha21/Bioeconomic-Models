@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Master Model: Integrated Bioeconomic System</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        navBg: '#0F172A', navHover: '#1E293B', navText: '#F8FAFC', navAccent: '#3B82F6',
+                        mainBg: '#F8FAFC', secBg: '#FFFFFF', altBg: '#F1F5F9',
+                        priAccent: '#4F46E5', secAccent: '#0D9488', hlAccent: '#312E81', /* Cool Indigo & Teal Theme */
+                        textDark: '#0F172A', textMuted: '#475569'
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@2.1.0/dist/chartjs-plugin-annotation.min.js"></script>
+    
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root { 
+            --nav-bg: #0F172A;       
+            --nav-hover: #1E293B; 
+            --nav-text: #F8FAFC; 
+            --main-bg: #F8FAFC;      
+            --panel-bg: #FFFFFF;     
+            --accent-pri: #4F46E5;   
+            --accent-sec: #0D9488;   
+            --accent-hl: #312E81;
+            --text-dark: #0F172A;    
+            --text-muted: #475569;
+            --nav-height: 70px; 
+            --footer-height: 60px; 
+        }
+
+        html { overflow-y: scroll; overflow-x: hidden; }
+
+        body { 
+            margin: 0; padding: 0; 
+            font-family: 'Inter', sans-serif; 
+            background-color: var(--main-bg); 
+            color: var(--text-dark); 
+        }
+        .academic-bg {
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(79, 70, 229, 0.05) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(13, 148, 136, 0.05) 0px, transparent 50%),
+                radial-gradient(at 50% 100%, rgba(15, 23, 42, 0.03) 0px, transparent 50%);
+            background-size: 100% 100%;
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1;
+        }
+        
+        .glass-nav { background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(79, 70, 229, 0.2); }
+        
+        .page-wrapper { padding-top: var(--nav-height); min-height: calc(100vh - var(--footer-height)); display: flex; flex-direction: column; }
+        .page-section { flex: 1; padding: 0.35rem 10% 5rem 10%; animation: fadeIn 0.6s ease-out; box-sizing: border-box; display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .header-container { text-align: left; margin-bottom: 2.5rem; }
+        
+        .live-badge { 
+            display: inline-flex; align-items: center; gap: 8px; 
+            background: linear-gradient(135deg, #EEF2FF, #F0FDFA); color: var(--accent-pri); 
+            padding: 6px 16px; border-radius: 30px; font-size: 0.85rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 1.5rem;
+            border: 1px solid #C7D2FE;
+            box-shadow: 0 4px 10px rgba(79, 70, 229, 0.15);
+        }
+
+    	.equation { font-size: 1.0em; color: var(--text-dark); font-weight: 500; margin-left: 2px; }
+    	p.subtitle .equation { font-size: 1.1em; display: block; margin-top: 0.85rem; margin-bottom: 0.25rem; }    
+        
+        .pulse-dot { width: 8px; height: 8px; background-color: var(--accent-pri); border-radius: 50%; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.4); } 70% { box-shadow: 0 0 0 6px rgba(79, 70, 229, 0); } 100% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0); } }
+        
+        .header-container h2 { font-size: 2.5rem; font-weight: 900; margin: 0 0 0.5rem 0; letter-spacing: -0.04em; line-height: 1.4; color: var(--text-dark); display: inline-block; }
+        p.subtitle { font-size: 1.25rem; color: var(--text-muted); max-width: 900px; margin: 0; line-height: 1.6; font-weight: 400; }
+
+        .playground-container { display: flex; gap: 2.5rem; flex-wrap: wrap; }
+        
+        .controls { 
+            flex: 1; min-width: 320px; background: var(--panel-bg); padding: 2.5rem; 
+            border-radius: 12px; border: 1px solid #E2E8F0; box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.05); 
+            display: flex; flex-direction: column; gap: 1.25rem; 
+            
+            position: sticky; top: 90px;
+            height: fit-content; 
+            max-height: calc(100vh - 120px); 
+            overflow-y: auto;
+        }
+
+        .controls::-webkit-scrollbar { width: 6px; }
+        .controls::-webkit-scrollbar-track { background: var(--main-bg); border-radius: 10px; }
+        .controls::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 10px; }
+        .controls::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+
+        .controls h3 { margin: 0 0 1rem 0; font-size: 0.9rem; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: var(--text-muted); border-bottom: 1px solid #E2E8F0; padding-bottom: 0.75rem; }
+        
+        .params-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+
+        .input-group { display: flex; flex-direction: column; gap: 0.5rem; }
+        .controls label { font-size: 0.85rem; font-weight: 600; color: var(--text-dark); }
+        .controls input { padding: 0.65rem 0.85rem; border: 1px solid #CBD5E1; border-radius: 8px; font-size: 0.95rem; background-color: var(--main-bg); color: var(--text-dark); font-family: 'JetBrains Mono', monospace; font-weight: 600; transition: all 0.3s ease; width: 100%; box-sizing: border-box;}
+        .controls input:focus { outline: none; border-color: var(--accent-pri); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15); background-color: var(--panel-bg); }
+        
+        .controls button.run-btn { background: linear-gradient(135deg, var(--accent-pri), var(--accent-sec)); color: white; border: none; padding: 1.1rem; font-size: 1rem; font-weight: 800; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; margin-top: 1rem; box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3); width: 100%; letter-spacing: 0.5px;}
+        .controls button.run-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(13, 148, 136, 0.4); }
+
+        .controls button.reset-btn { background: #F1F5F9; color: var(--text-muted); border: 1px solid #CBD5E1; padding: 0.85rem; font-size: 1rem; font-weight: 700; border-radius: 8px; cursor: pointer; transition: all 0.2s ease; margin-top: 0.25rem; width: 100%; }
+        .controls button.reset-btn:hover { background: #E2E8F0; color: var(--text-dark); border-color: #94A3B8;}
+        
+        .visualizer { flex: 2.5; min-width: 450px; display: flex; flex-direction: column; gap: 2.5rem; }
+        
+        .chart-box { 
+            background-color: var(--panel-bg); border: 1px solid #E2E8F0; border-radius: 12px; 
+            padding: 1.5rem; box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.05); transition: box-shadow 0.3s ease; 
+            height: 700px; width: 100%; max-width: 950px; margin: 0 auto; min-height: 500px; display: flex; flex-direction: column;
+        }
+        .chart-box:hover { box-shadow: 0 15px 35px -5px rgba(15, 23, 42, 0.1); }
+        
+        .chart-container { 
+            position: relative; flex-grow: 1; width: 100%; min-height: 0; 
+            display: grid; grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(2, 1fr); gap: 1.5rem;
+        }
+        .subplot-wrapper { position: relative; width: 100%; height: 100%; }
+        
+        .chart-toolbar {
+            display: flex; justify-content: center; align-items: center; gap: 0.75rem;
+            margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #E2E8F0;
+        }
+        .tool-btn {
+            background: #F8FAFC; border: 1px solid #CBD5E1; color: #475569; padding: 0.5rem 0.75rem;
+            border-radius: 6px; cursor: pointer; transition: all 0.2s ease; display: inline-flex; align-items: center; justify-content: center;
+        }
+        .tool-btn svg { width: 1.25rem; height: 1.25rem; }
+        .tool-btn:hover { background: #E2E8F0; color: #0F172A; }
+        .tool-btn.active { background: #EEF2FF; color: var(--accent-pri); border-color: #C7D2FE; }
+        
+        footer { background-color: var(--nav-bg); color: #94A3B8; text-align: center; height: 60px; line-height: 60px; font-size: 0.9rem; width: 100%; font-family: 'JetBrains Mono', monospace; border-top: 1px solid rgba(255,255,255,0.05); }
+
+        .scenario-bar {
+            background: var(--panel-bg); border: 1px solid #E2E8F0; border-radius: 12px; padding: 1rem 1.5rem;
+            box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.05); display: flex; align-items: center; gap: 1.5rem; width: 100%; margin-bottom: 2rem;
+        }
+        .scenario-bar label { font-weight: 800; color: var(--accent-pri); font-size: 1.05rem; margin: 0; }
+        .scenario-bar select {
+            padding: 0.6rem 1rem; border: 2px solid var(--accent-pri); border-radius: 8px; 
+            font-size: 1rem; background-color: var(--main-bg); color: var(--text-dark); 
+            font-family: 'Inter', sans-serif; font-weight: 700; cursor: pointer; outline: none; flex-grow: 1;
+        }
+        .scenario-bar select:focus { outline: none; box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2); }
+
+        @media (max-width: 768px) {
+            .page-section { padding: 1rem 5% 3rem 5% !important; }
+            .header-container h2 { font-size: 2rem !important; }
+            .playground-container { gap: 1.5rem !important; }
+            .controls, .visualizer { min-width: 100% !important; }
+            .controls { padding: 1.5rem !important; position: relative; top: 0; max-height: none; overflow-y: visible;}
+            .params-grid { grid-template-columns: 1fr; } 
+            .scenario-bar { flex-direction: column; align-items: flex-start; gap: 0.75rem;}
+            .scenario-bar select { width: 100%; }
+            .chart-box { height: auto !important; padding: 1rem 0.25rem !important; width: 100% !important; }
+            .chart-container { grid-template-columns: 1fr; grid-template-rows: repeat(4, 300px); gap: 1rem; } 
+            .chart-toolbar { width: 100% !important; padding-top: 0.5rem !important; margin-top: 0.5rem !important; }
+            footer { height: auto !important; line-height: 1.5 !important; padding: 1rem !important; font-size: 0.75rem !important; }
+        }
+    </style>
+</head>
+<body onload="runSimulation()">
+    
+    <div class="academic-bg"></div>
+
+    <nav class="glass-nav sticky inset-x-0 top-0 z-50 shadow-[0_4px_20px_rgba(15,23,42,0.2)] transform-gpu">
+        <div class="max-w-7xl mx-auto px-6 lg:px-8">
+            <div class="flex items-center justify-between h-[70px]">
+                <div class="flex-shrink-0 font-extrabold text-[1.5rem] tracking-tight text-navText">
+                    BioEcon<span class="text-secAccent">.</span>
+                </div>
+                <div class="hidden md:block">
+                    <ul class="ml-10 flex items-baseline space-x-10 m-0 p-0 list-none">
+                        <li><a href="index.html" class="text-[#CBD5E1] font-medium text-[1.05rem] hover:text-navText hover:drop-shadow-[0_0_12px_rgba(79,70,229,0.5)] transition-all duration-300">Home</a></li>
+                        <li><a href="about.html" class="text-[#CBD5E1] font-medium text-[1.05rem] hover:text-navText hover:drop-shadow-[0_0_12px_rgba(79,70,229,0.5)] transition-all duration-300">Model Framework</a></li>
+                        <li><a href="playground.html" class="text-navText font-medium text-[1.05rem] drop-shadow-[0_0_12px_rgba(79,70,229,0.5)] transition-all duration-300"> Playground</a></li>
+                        <li><a href="sources.html" class="text-[#CBD5E1] font-medium text-[1.05rem] hover:text-navText hover:drop-shadow-[0_0_12px_rgba(79,70,229,0.5)] transition-all duration-300">References</a></li>
+                    </ul>
+                </div>
+                <div class="md:hidden flex items-center">
+                    <button id="mobile-menu-btn" class="text-navText hover:text-secAccent focus:outline-none transition-colors">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div id="mobile-menu" class="hidden md:hidden absolute top-[70px] left-0 w-full bg-navBg/95 backdrop-blur-xl border-b border-white/10 shadow-2xl">
+            <ul class="flex flex-col px-6 py-6 space-y-4 text-center">
+                <li><a href="index.html" class="text-[#CBD5E1] font-medium text-lg block hover:text-secAccent transition-colors">Home</a></li>
+                <li><a href="about.html" class="text-[#CBD5E1] font-medium text-lg block hover:text-secAccent transition-colors">Model Framework</a></li>
+                <li><a href="playground.html" class="text-[#CBD5E1] font-medium text-lg block hover:text-secAccent transition-colors">Playground</a></li>
+                <li><a href="sources.html" class="text-[#CBD5E1] font-medium text-lg block hover:text-secAccent transition-colors">References</a></li>
+            </ul>
+        </div>
+    </nav>
+    
+    <div class="page-wrapper flex-grow">
+        <section id="playground" class="page-section">
+            
+            <div class="mb-6">
+                <a href="playground.html" class="inline-flex items-center text-sm font-bold text-slate-500 hover:text-priAccent transition-colors mb-6 tracking-wide">
+                    &larr; Back to Hub
+                </a>
+                <br> 
+                
+                <div class="border-b-[3px] border-[#E2E8F0] pb-6 w-full header-container">
+                     <h2>Integrated Bioeconomic System</h2>
+                    <p class="subtitle">
+                        A master view of all four models using subplots to visualize holistic system feedback. Adjusting a parameter in the sidebar will immediately cascade and alter the trajectories of the entire deterministic system.
+                    </p>
+                </div>
+            </div>
+
+            <div class="scenario-bar">
+                <label for="model_selector">Select Scenario View:</label>
+                <select id="model_selector" onchange="toggleInputs(); runSimulation();">
+                    <option value="general">1. General Master Model (All Variables)</option>
+                    <option value="global">2. State Transition: Global Policy (Year 15)</option>
+                    <option value="immediate">3. State Transition: Immediate Intervention</option>
+                    <option value="delay">4. State Transition: Political Delay</option>
+                </select>
+            </div>
+
+            <div class="playground-container">
+                
+                <div class="controls">
+                    <h3>System Parameters</h3>
+                    
+                    <div id="params_general" class="params-grid" style="display: grid;">
+                        <div class="input-group"><label for="val_f0">Init. Food <span class="equation">\(F_0\)</span></label><input type="number" id="val_f0" value="100" step="1"></div>
+                        <div class="input-group"><label for="val_n0">Init. Nature <span class="equation">\(N_0\)</span></label><input type="number" id="val_n0" value="0.9" step="0.05"></div>
+                        <div class="input-group"><label for="val_c0">Init. Capital <span class="equation">\(C_0\)</span></label><input type="number" id="val_c0" value="30" step="1"></div>
+                        <div class="input-group"><label for="val_eq0">Init. Equity <span class="equation">\(Eq_0\)</span></label><input type="number" id="val_eq0" value="0.3" step="0.05"></div>
+                        <div class="input-group"><label for="val_alpha">Efficiency <span class="equation">\(\alpha\)</span></label><input type="number" id="val_alpha" value="0.35" step="0.01"></div>
+                        <div class="input-group"><label for="val_beta">Consump. <span class="equation">\(\beta\)</span></label><input type="number" id="val_beta" value="0.05" step="0.01"></div>
+                        <div class="input-group"><label for="val_gamma">Food Decay <span class="equation">\(\gamma\)</span></label><input type="number" id="val_gamma" value="0.02" step="0.01"></div>
+                        <div class="input-group"><label for="val_pop">Population <span class="equation">\(P\)</span></label><input type="number" id="val_pop" value="100" step="1"></div>
+                        <div class="input-group"><label for="val_r">Regen Rate <span class="equation">\(r\)</span></label><input type="number" id="val_r" value="0.2" step="0.01"></div>
+                        <div class="input-group"><label for="val_k">Nat. Capac. <span class="equation">\(K\)</span></label><input type="number" id="val_k" value="1.0" step="0.1"></div>
+                        <div class="input-group"><label for="val_delta">Degrad. <span class="equation">\(\delta\)</span></label><input type="number" id="val_delta" value="0.001" step="0.0001"></div>
+                        <div class="input-group"><label for="val_sigma">Sust. Eff. <span class="equation">\(\sigma\)</span></label><input type="number" id="val_sigma" value="0.1" step="0.01"></div>
+                        <div class="input-group"><label for="val_c">Base Cost <span class="equation">\(c\)</span></label><input type="number" id="val_c" value="0.05" step="0.01"></div>
+                        <div class="input-group"><label for="val_pmargin">Margin <span class="equation">\(p_{m}\)</span></label><input type="number" id="val_pmargin" value="2.5" step="0.1"></div>
+                        <div class="input-group"><label for="val_k1">Pol. Eff <span class="equation">\(k_1\)</span></label><input type="number" id="val_k1" value="0.8" step="0.05"></div>
+                        <div class="input-group"><label for="val_k2">Surplus <span class="equation">\(k_2\)</span></label><input type="number" id="val_k2" value="0.005" step="0.001"></div>
+                        <div class="input-group"><label for="val_d">Dem. Thr <span class="equation">\(D\)</span></label><input type="number" id="val_d" value="80" step="1"></div>
+                        <div class="input-group"><label for="val_mu">Eq. Decay <span class="equation">\(\mu\)</span></label><input type="number" id="val_mu" value="0.05" step="0.01"></div>
+                        <div class="input-group"><label for="val_up">Prod. <span class="equation">\(u_p\)</span></label><input type="number" id="val_up" value="1.0" step="0.05" max="1"></div>
+                        <div class="input-group"><label for="val_us">Sust. <span class="equation">\(u_s\)</span></label><input type="number" id="val_us" value="0.01" step="0.01" max="1"></div>
+                        <div class="input-group"><label for="val_ue">Equit. <span class="equation">\(u_e\)</span></label><input type="number" id="val_ue" value="0.01" step="0.01" max="1"></div>
+                    </div>
+
+                    <div id="params_global" class="params-grid" style="display: none;">
+                        <div class="input-group" style="grid-column: span 2;">
+                            <label for="val_global_year">Global Policy Implementation Year</label>
+                            <input type="number" id="val_global_year" value="15" step="1" min="1" max="50">
+                        </div>
+                        <div class="input-group">
+                            <label for="val_global_pre_up">Pre-Policy <span class="equation">\(u_p\)</span></label>
+                            <input type="number" id="val_global_pre_up" value="0.8" step="0.1" max="1">
+                        </div>
+                        <div class="input-group">
+                            <label for="val_global_post_up">Post-Policy <span class="equation">\(u_p\)</span></label>
+                            <input type="number" id="val_global_post_up" value="0.7" step="0.1" max="1">
+                        </div>
+                    </div>
+
+                    <div id="params_immediate" class="params-grid" style="display: none;">
+                        <div class="input-group" style="grid-column: span 2;">
+                            <label style="color:var(--text-muted); font-size:0.8rem; margin-bottom:4px;">Crisis Trigger Thresholds:</label>
+                        </div>
+                        <div class="input-group">
+                            <label for="val_imm_f_thresh">Food Multiplier</label>
+                            <input type="number" id="val_imm_f_thresh" value="1.1" step="0.1">
+                        </div>
+                        <div class="input-group">
+                            <label for="val_imm_n_thresh">Nature Min</label>
+                            <input type="number" id="val_imm_n_thresh" value="0.4" step="0.05">
+                        </div>
+                    </div>
+
+                    <div id="params_delay" class="params-grid" style="display: none;">
+                        <div class="input-group">
+                            <label for="val_del_la">LA Action Year</label>
+                            <input type="number" id="val_del_la" value="6" step="1" min="1" max="50">
+                        </div>
+                        <div class="input-group">
+                            <label for="val_del_ct">CT Action Year</label>
+                            <input type="number" id="val_del_ct" value="15" step="1" min="1" max="50">
+                        </div>
+                        <div class="input-group">
+                            <label for="val_del_nh">NH Action Year</label>
+                            <input type="number" id="val_del_nh" value="25" step="1" min="1" max="50">
+                        </div>
+                    </div>
+                    
+                    <button class="run-btn" onclick="runSimulation()">Run Simulation</button>
+                    <button class="reset-btn" onclick="resetDefaults()">Reset to Defaults</button>
+                </div>
+                
+                <div class="visualizer">
+                    <div class="chart-box" id="main-chart-box">
+                        <div class="chart-container">
+                            <div class="subplot-wrapper"><canvas id="chartF"></canvas></div>
+                            <div class="subplot-wrapper"><canvas id="chartN"></canvas></div>
+                            <div class="subplot-wrapper"><canvas id="chartC"></canvas></div>
+                            <div class="subplot-wrapper"><canvas id="chartEq"></canvas></div>
+                        </div>
+                        <div class="chart-toolbar">
+                            <button class="tool-btn active" id="masterPan" onclick="toggleMasterPan('masterPan')" title="Toggle Pan All">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 11.5V14m0-2.5v-6a1.5 1.5 0 113 0m-3 6a1.5 1.5 0 00-3 0v2a7.5 7.5 0 0015 0v-5a1.5 1.5 0 00-3 0m-6-3V11m0-5.5v-1a1.5 1.5 0 013 0v1m0 0V11m0-5.5a1.5 1.5 0 013 0v3m0 0V11"></path></svg>
+                            </button>
+                            <button class="tool-btn" onclick="masterZoom(1.1)" title="Zoom In All">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"></path></svg>
+                            </button>
+                            <button class="tool-btn" onclick="masterZoom(0.9)" title="Zoom Out All">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM13 10H7"></path></svg>
+                            </button>
+                            <button class="tool-btn" onclick="resetMasterZoom()" title="Reset Zoom All">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                            </button>
+                            <button class="tool-btn" onclick="downloadMasterDashboard('bioecon_master_dashboard.png')" title="Download All 4 Plots">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+    
+    <footer>
+        &copy; 2026 Anthony Artino and Sarah Decipeda. All Rights Reserved.
+    </footer>
+
+    <script>
+        const btn = document.getElementById('mobile-menu-btn');
+        const menu = document.getElementById('mobile-menu');
+        if(btn && menu) {
+            btn.addEventListener('click', () => {
+                menu.classList.toggle('hidden');
+            });
+        }
+
+        Chart.defaults.font.family = "'Inter', sans-serif";
+        Chart.defaults.color = '#475569';
+        // Fluid transition animations
+        Chart.defaults.animation.duration = 600; 
+
+        // Store all 4 chart instances globally so we can update them rather than destroy them
+        let charts = { F: null, N: null, C: null, Eq: null };
+        
+        const whiteBackgroundPlugin = {
+            id: 'customCanvasBackgroundColor',
+            beforeDraw: (chart) => {
+                const ctx = chart.canvas.getContext('2d');
+                ctx.save();
+                ctx.globalCompositeOperation = 'destination-over';
+                ctx.fillStyle = '#ffffff'; 
+                ctx.fillRect(0, 0, chart.width, chart.height);
+                ctx.restore();
+            }
+        };
+        Chart.register(whiteBackgroundPlugin);
+
+        function toggleMasterPan(btnId) {
+            let btn = document.getElementById(btnId);
+            if (!charts['F']) return;
+            let isPanEnabled = charts['F'].options.plugins.zoom.pan.enabled;
+            let newState = !isPanEnabled;
+            
+            for (let key in charts) {
+                if (charts[key]) {
+                    charts[key].options.plugins.zoom.pan.enabled = newState;
+                    charts[key].update('none'); 
+                }
+            }
+            if (!isPanEnabled) btn.classList.add('active'); else btn.classList.remove('active');
+        }
+
+        function masterZoom(factor) {
+            for (let key in charts) { if (charts[key]) charts[key].zoom(factor); }
+        }
+
+        function resetMasterZoom() {
+            for (let key in charts) { if (charts[key]) charts[key].resetZoom(); }
+        }
+
+        function downloadMasterDashboard(filename) {
+            const cF = document.getElementById('chartF');
+            const cN = document.getElementById('chartN');
+            const cC = document.getElementById('chartC');
+            const cEq = document.getElementById('chartEq');
+            
+            if (!cF || !cN || !cC || !cEq) return;
+
+            const pad = 20;
+            const w = cF.width;
+            const h = cF.height;
+
+            const master = document.createElement('canvas');
+            master.width = (w * 2) + (pad * 3);
+            master.height = (h * 2) + (pad * 3);
+            const ctx = master.getContext('2d');
+            
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillRect(0, 0, master.width, master.height);
+            
+            ctx.drawImage(cF, pad, pad, w, h);
+            ctx.drawImage(cN, w + (pad * 2), pad, w, h);
+            ctx.drawImage(cC, pad, h + (pad * 2), w, h);
+            ctx.drawImage(cEq, w + (pad * 2), h + (pad * 2), w, h);
+
+            const link = document.createElement('a');
+            link.download = filename;
+            link.href = master.toDataURL('image/png');
+            link.click();
+        }
+
+        function toggleInputs() {
+            const mode = document.getElementById('model_selector').value;
+            document.getElementById('params_general').style.display = (mode === 'general') ? 'grid' : 'none';
+            document.getElementById('params_global').style.display = (mode === 'global') ? 'grid' : 'none';
+            document.getElementById('params_immediate').style.display = (mode === 'immediate') ? 'grid' : 'none';
+            document.getElementById('params_delay').style.display = (mode === 'delay') ? 'grid' : 'none';
+        }
+
+        const defaultValues = {
+            general: { 
+                val_f0: 100, val_n0: 0.9, val_c0: 30, val_eq0: 0.3, 
+                val_alpha: 0.35, val_beta: 0.05, val_gamma: 0.02, val_pop: 100,
+                val_r: 0.2, val_k: 1.0, val_delta: 0.001, val_sigma: 0.1,
+                val_c: 0.05, val_pmargin: 2.5, val_k1: 0.8, val_k2: 0.005, val_d: 80, val_mu: 0.05,
+                val_up: 1.0, val_us: 0.01, val_ue: 0.01
+            },
+            global: { val_global_year: 15, val_global_pre_up: 0.8, val_global_post_up: 0.7 },
+            immediate: { val_imm_f_thresh: 1.1, val_imm_n_thresh: 0.4 },
+            delay: { val_del_la: 6, val_del_ct: 15, val_del_nh: 25 }
+        };
+
+        function resetDefaults() {
+            const mode = document.getElementById('model_selector').value;
+            for (const [id, val] of Object.entries(defaultValues[mode])) {
+                const el = document.getElementById(id);
+                if (el) el.value = val;
+            }
+            
+            resetMasterZoom();
+            runSimulation();
+        }
+
+        function buildSubplot(key, title, datasets, yAxisTitle, formatK, annots) {
+            const ctx = document.getElementById('chart' + key).getContext('2d');
+            const timeLabels = [];
+            for(let i = 0; i < 5000; i += 10) { timeLabels.push((i * 0.01).toFixed(1)); }
+            timeLabels.push((50.0).toFixed(1)); 
+
+            const options = {
+                maintainAspectRatio: false, responsive: true,
+                interaction: { mode: 'index', intersect: false },
+                plugins: {
+                    legend: { display: datasets.length > 1, labels: { boxWidth: 10, font: {size: 10} } },
+                    annotation: { annotations: annots },
+                    title: { display: true, text: title, font: { size: 14, family: "'Inter', sans-serif", weight: 'bold' }, color: '#0F172A', padding: { bottom: 8 } },
+                    zoom: { pan: { enabled: true, mode: 'x' }, zoom: { wheel: { enabled: false }, pinch: { enabled: true }, mode: 'x' } }
+                },
+                scales: {
+                    x: { 
+                        type: 'linear', min: 0, max: 50, title: { display: true, text: 'Time (Years)', font: {size: 10} }, 
+                        ticks: { callback: function(val) { let t = parseFloat(this.getLabelForValue(val)); return (t % 10 === 0) ? t : null; }, autoSkip: false, maxRotation: 0, font: {size: 10} } 
+                    },
+                    y: { 
+                        type: 'linear', display: true, position: 'left', title: { display: true, text: yAxisTitle, font: {size: 10} },
+                        ticks: { 
+                            callback: function(value) { 
+                                let v = Number.isInteger(value) ? value : parseFloat(value.toFixed(4));
+                                return (formatK && window.innerWidth < 768 && Math.abs(v) >= 1000) ? (v / 1000).toFixed(1) + 'k' : v; 
+                            }, 
+                            font: {size: 10} 
+                        }
+                    }
+                }
+            };
+
+            // Inject the new data and update to trigger fluid animation morphing
+            if (charts[key]) {
+                charts[key].data.labels = timeLabels;
+                charts[key].data.datasets = datasets;
+                charts[key].options = options;
+                charts[key].update(); 
+            } else {
+                charts[key] = new Chart(ctx, {
+                    type: 'line',
+                    data: { labels: timeLabels, datasets: datasets },
+                    options: options
+                });
+            }
+        }
+
+        function runSimulation() {
+            const mode = document.getElementById('model_selector').value;
+            const dt = 0.01; const totalYears = 50; const steps = Math.floor(totalYears / dt);
+            
+            let dsF = [], dsN = [], dsC = [], dsEq = [];
+            let annots = {};
+
+            const BASE_POP = 100, BASE_D = 80, BASE_k2 = 0.005;
+            const a_s = 0.35, b_s = 0.05, g_s = 0.02, pm_s = 2.5, c_s = 0.05;
+            const r_s = 0.2, K_s = 1.0, del_s = 0.001, sig_s = 0.1, k1_s = 0.8, mu_s = 0.05;
+            
+            const stateScenarios = {
+                'LA (High Insec.)': { pop: 4600000, base_y0: [40.0, 0.9, 10.0, 0.1], alpha: 0.20, gamma: 0.08, base_delta: 0.001, color: '#EF4444' },
+                'CT (Avg Insec.)': { pop: 3600000, base_y0: [110.0, 0.75, 85.0, 0.40], alpha: 0.16, gamma: 0.05, base_delta: 0.001, color: '#F97316' },
+                'NH (Low Insec.)': { pop: 1400000, base_y0: [130.0, 0.90, 70.0, 0.85], alpha: 0.28, gamma: 0.04, base_delta: 0.0002, color: '#10B981' }
+            };
+
+            // --- 1. GENERAL MASTER MODEL ---
+            if (mode === 'general') {
+                const F0 = parseFloat(document.getElementById('val_f0').value), N0 = parseFloat(document.getElementById('val_n0').value), C0 = parseFloat(document.getElementById('val_c0').value), Eq0 = parseFloat(document.getElementById('val_eq0').value);
+                const a = parseFloat(document.getElementById('val_alpha').value), b = parseFloat(document.getElementById('val_beta').value), g = parseFloat(document.getElementById('val_gamma').value), P = parseFloat(document.getElementById('val_pop').value);
+                const r = parseFloat(document.getElementById('val_r').value), K = parseFloat(document.getElementById('val_k').value), del = parseFloat(document.getElementById('val_delta').value), sig = parseFloat(document.getElementById('val_sigma').value);
+                const c = parseFloat(document.getElementById('val_c').value), pm = parseFloat(document.getElementById('val_pmargin').value), k1 = parseFloat(document.getElementById('val_k1').value), k2 = parseFloat(document.getElementById('val_k2').value), D = parseFloat(document.getElementById('val_d').value), mu = parseFloat(document.getElementById('val_mu').value);
+                const up1 = parseFloat(document.getElementById('val_up').value), us1 = parseFloat(document.getElementById('val_us').value), ue1 = parseFloat(document.getElementById('val_ue').value);
+
+                const F = new Array(steps), N = new Array(steps), C = new Array(steps), Eq = new Array(steps);
+                F[0] = F0; N[0] = N0; C[0] = C0; Eq[0] = Eq0;
+
+                for(let i = 1; i < steps; i++) {
+                    let t = i * dt;
+                    let pF = F[i-1], pN = N[i-1], pC = C[i-1], pEq = Eq[i-1];
+
+                    let up = t < 15 ? up1 : 0.7;
+                    let us = t < 15 ? us1 : 0.1;
+                    let ue = t < 15 ? ue1 : 0.1;
+
+                    let dF = a * pC * pN * up - b * P - g * pF;
+                    let dN = r * pN * (1 - pN / K) - del * pF * up + sig * us;
+                    let dC = pm * (b * P) - c * pF - (us + ue) * pC;
+                    let dEq = k1 * ue + k2 * Math.max(0, pF - D) - mu * pEq;
+
+                    F[i] = Math.max(0, pF + (dF * dt)); N[i] = Math.max(0, pN + (dN * dt)); C[i] = Math.max(0, pC + (dC * dt)); Eq[i] = Math.max(0, pEq + (dEq * dt));
+                }
+
+                const arrF = [], arrN = [], arrC = [], arrEq = [];
+                for(let i = 0; i < steps; i += 10) { arrF.push(F[i]); arrN.push(N[i]); arrC.push(C[i]); arrEq.push(Eq[i]); }
+                arrF.push(F[steps-1]); arrN.push(N[steps-1]); arrC.push(C[steps-1]); arrEq.push(Eq[steps-1]);
+
+                dsF.push({ label: 'Food', data: arrF, borderColor: '#2563EB', backgroundColor: 'rgba(37,99,235,0.05)', fill: true, pointRadius: 0, tension: 0.2, borderWidth: 2 });
+                dsN.push({ label: 'Nature', data: arrN, borderColor: '#10B981', backgroundColor: 'rgba(16,185,129,0.05)', fill: true, pointRadius: 0, tension: 0.2, borderWidth: 2 });
+                dsC.push({ label: 'Capital', data: arrC, borderColor: '#D97706', backgroundColor: 'rgba(217,119,6,0.05)', fill: true, pointRadius: 0, tension: 0.2, borderWidth: 2 });
+                dsEq.push({ label: 'Equity', data: arrEq, borderColor: '#7C3AED', backgroundColor: 'rgba(124,58,237,0.05)', fill: true, pointRadius: 0, tension: 0.2, borderWidth: 2 });
+
+                annots['shift'] = { type: 'line', xMin: 15, xMax: 15, borderColor: 'gray', borderWidth: 2, borderDash: [4, 4], label: { content: 'Policy Shift', display: true, position: 'start', backgroundColor: 'rgba(0,0,0,0.6)', font:{size: 10} } };
+            }
+
+            // --- SCENARIO LOOPS ---
+            else {
+                let pYear, preUp, postUp, fThr, nThr;
+                if(mode==='global') {
+                    pYear = parseFloat(document.getElementById('val_global_year').value);
+                    preUp = parseFloat(document.getElementById('val_global_pre_up').value);
+                    postUp = parseFloat(document.getElementById('val_global_post_up').value);
+                } else if(mode==='immediate') {
+                    fThr = parseFloat(document.getElementById('val_imm_f_thresh').value);
+                    nThr = parseFloat(document.getElementById('val_imm_n_thresh').value);
+                } else if (mode==='delay') {
+                    stateScenarios['LA (High Insec.)'].intervention_year = parseFloat(document.getElementById('val_del_la').value);
+                    stateScenarios['CT (Avg Insec.)'].intervention_year = parseFloat(document.getElementById('val_del_ct').value);
+                    stateScenarios['NH (Low Insec.)'].intervention_year = parseFloat(document.getElementById('val_del_nh').value);
+                }
+
+                let triggerCount = 0;
+
+                for (const [name, p] of Object.entries(stateScenarios)) {
+                    let scl = p.pop / BASE_POP; let D = BASE_D * scl; let del = p.base_delta / scl; let k2 = BASE_k2 / scl;
+                    const F = new Array(steps), N = new Array(steps), C = new Array(steps), Eq = new Array(steps);
+                    F[0] = p.base_y0[0] * scl; N[0] = p.base_y0[1]; C[0] = p.base_y0[2] * scl; Eq[0] = p.base_y0[3];
+
+                    let polTrig = false, trigYr = null;
+
+                    for(let i = 1; i < steps; i++) {
+                        let t = i * dt; let pF = F[i-1], pN = N[i-1], pC = C[i-1], pEq = Eq[i-1];
+                        let up, us, ue;
+
+                        if (mode === 'global') {
+                            up = t < pYear ? preUp : postUp; us = t < pYear ? 0.05 : 0.1; ue = t < pYear ? 0.05 : 0.1;
+                        } else if (mode === 'immediate') {
+                            up = 0.8; us = 0.05; ue = 0.05; let isC = false;
+                            if (pF < D * fThr) { up = 0.8; us = 0.1; ue = 0.1; isC = true; }
+                            else if (pN < nThr) { up = 0.4; us = 0.5; ue = 0.1; isC = true; }
+                            else if (pC < 20.0 * scl) { up = 0.6; us = 0.2; ue = 0.2; isC = true; }
+                            if (isC && !polTrig) { polTrig = true; trigYr = t; }
+                        } else if (mode === 'delay') {
+                            if (t < p.intervention_year) { up = 0.8; us = 0.05; ue = 0.05; }
+                            else { up = 0.8; us = 0.1; ue = 0.1; if(!polTrig){ polTrig=true; trigYr=t; } }
+                        }
+
+                        let dF = p.alpha * pC * pN * up - b_s * p.pop - p.gamma * pF;
+                        let dN = r_s * pN * (1 - pN / K_s) - del * pF * up + sig_s * us;
+                        let dC = pm_s * (b_s * p.pop) - c_s * pF - (us + ue) * pC;
+                        let dEq = k1_s * ue + k2 * Math.max(0, pF - D) - mu_s * pEq;
+
+                        F[i] = Math.max(0, pF + (dF * dt)); N[i] = Math.max(0, pN + (dN * dt)); C[i] = Math.max(0, pC + (dC * dt)); Eq[i] = Math.max(0, pEq + (dEq * dt));
+                    }
+                    
+                    const aF = [], aN = [], aC = [], aEq = [];
+                    for(let i = 0; i < steps; i += 10) { aF.push(F[i]/1000000); aN.push(N[i]); aC.push(C[i]/1000000); aEq.push(Eq[i]); }
+                    aF.push(F[steps-1]/1000000); aN.push(N[steps-1]); aC.push(C[steps-1]/1000000); aEq.push(Eq[steps-1]);
+
+                    let setObj = { label: name, borderColor: p.color, fill: false, pointRadius: 0, tension: 0.2, borderWidth: 2 };
+                    dsF.push({ ...setObj, data: aF }); dsN.push({ ...setObj, data: aN }); dsC.push({ ...setObj, data: aC }); dsEq.push({ ...setObj, data: aEq });
+
+                    if (mode === 'global') {
+                        annots['glob'] = { type: 'line', xMin: pYear, xMax: pYear, borderColor: 'gray', borderWidth: 2, borderDash: [4, 4] };
+                    } else if (trigYr !== null && trigYr < totalYears) {
+                        annots['line'+triggerCount] = { type: 'line', xMin: trigYr, xMax: trigYr, borderColor: p.color, borderWidth: 2, borderDash: [2, 2], label: { content: 'Trig', display: false } };
+                        triggerCount++;
+                    }
+                }
+            }
+
+            let isState = mode !== 'general';
+            buildSubplot('F', 'Food Production Dynamics', dsF, isState ? 'Food (Millions)' : 'Biomass', true, annots);
+            buildSubplot('N', 'Natural Resource Health', dsN, 'Health (0 to 1)', false, annots);
+            buildSubplot('C', 'Economic Capital', dsC, isState ? 'Capital (Millions)' : 'Wealth', true, annots);
+            buildSubplot('Eq', 'Equity Index', dsEq, 'Equity (0 to 1)', false, annots);
+        }
+
+        toggleInputs();
+    </script>
+</body>
+</html>
