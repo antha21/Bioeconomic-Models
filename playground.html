@@ -112,6 +112,7 @@
         .card-4 { animation-delay: 0.4s; }
         .card-5 { animation-delay: 0.5s; }
         .card-6 { animation-delay: 0.6s; }
+        .card-game { animation-delay: 0.7s; }
 
         @keyframes cardEntrance { to { opacity: 1; transform: translateY(0); } }
 
@@ -126,6 +127,7 @@
         .card-4:hover { box-shadow: 0 30px 60px -15px rgba(16, 185, 129, 0.25); border-color: #10B981; }
         .card-5:hover { box-shadow: 0 30px 60px -15px rgba(244, 63, 94, 0.25); border-color: #F43F5E; }
         .card-6:hover { box-shadow: 0 30px 60px -15px rgba(249, 115, 22, 0.25); border-color: #F97316; }
+        .card-game:hover { box-shadow: 0 30px 60px -15px rgba(236, 72, 153, 0.25); border-color: #EC4899; }
 
         .card-1::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 6px; background: #3B82F6; opacity: 0.8; transition: opacity 0.3s; }
         .card-2::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 6px; background: #06B6D4; opacity: 0.8; transition: opacity 0.3s; }
@@ -133,6 +135,7 @@
         .card-4::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 6px; background: #10B981; opacity: 0.8; transition: opacity 0.3s; }
         .card-5::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 6px; background: #F43F5E; opacity: 0.8; transition: opacity 0.3s; }
         .card-6::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 6px; background: #F97316; opacity: 0.8; transition: opacity 0.3s; }
+        .card-game::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 6px; background: #EC4899; opacity: 0.8; transition: opacity 0.3s; }
         
         .model-card:hover::before { opacity: 1; }
 
@@ -157,73 +160,61 @@
            MOBILE ADJUSTMENTS ONLY (Max Width 768px)
            ========================================= */
         @media (max-width: 768px) {
-            /* Shrink the top 'Interactive Workspace' badge */
             .glass-badge {
                 padding: 6px 14px !important;
                 font-size: 0.7rem !important;
                 margin-bottom: 1rem !important;
             }
 
-            /* Make the header title much more compact */
             .header-container h2 {
                 font-size: 1.75rem !important;
                 margin-bottom: 0.75rem !important;
             }
             
-            /* Adjust the subtitle paragraph */
             p.subtitle {
                 font-size: 0.9rem !important;
                 padding: 0 0.5rem !important;
                 line-height: 1.5 !important;
             }
 
-            /* Reduce the dead space between the header and the cards */
             .header-container {
                 margin-bottom: 1.5rem !important;
             }
             
-            /* Reduce side padding on the main wrapper */
             .page-section {
                 padding-left: 5% !important;
                 padding-right: 5% !important;
             }
 
-            /* Reduce the gap between cards (overrides Tailwind's gap-8) */
             .grid {
                 gap: 1rem !important;
             }
             
-            /* Tighten up the cards themselves */
             .model-card {
                 padding: 1.25rem 1rem !important;
             }
             
-            /* Shrink the tiny card number label */
             .card-number {
                 font-size: 0.65rem !important;
                 padding: 4px 10px !important;
                 margin-bottom: 0.75rem !important;
             }
 
-            /* Shrink the card title */
             .card-title {
                 font-size: 1.2rem !important;
                 margin-bottom: 0.5rem !important;
             }
             
-            /* Shrink the card description */
             .card-desc {
                 font-size: 0.85rem !important;
                 margin-bottom: 1rem !important;
                 line-height: 1.4 !important;
             }
             
-            /* Shrink the launch link text */
             .card-link-text {
                 font-size: 0.8rem !important;
             }
 
-            /* Remove the fixed height on the footer so the text can wrap naturally */
             footer {
                 height: auto !important;
                 line-height: 1.5 !important;
@@ -231,7 +222,6 @@
                 font-size: 0.75rem !important;
             }
             
-            /* Slightly reduce the 'BioEcon.' logo text size */
             .text-\[1\.5rem\] {
                 font-size: 1.25rem !important;
             }
@@ -324,13 +314,29 @@
                     <span class="card-link-text" style="color: #E11D48;">Launch Workspace &rarr;</span>
                 </a>
 
-                <a href="ODEs 3D/index1.html" class="model-card card-6">
+                <a href="model6.html" class="model-card card-6">
                     <span class="card-number" style="color: #EA580C; background: rgba(249, 115, 22, 0.15);">MODEL 06</span>
                     <h3 class="card-title">Stochastic Spatiotemporal Market (SPDE)</h3>
                     <p class="card-desc">Advanced SPDE modeling incorporating market volatility, environmental noise, and spatial shifts under deep uncertainty.</p>
-                    <span class="card-link-text" style="color: #EA580C;">In Development &rarr;</span>
+                    <span class="card-link-text" style="color: #EA580C;">Launch Workspace &rarr;</span>
                 </a>
 
+            </div>
+
+            <div class="w-full h-[1px] bg-slate-200 mt-20 mb-12"></div>
+
+            <div class="header-container mb-8">
+                 <h2 style="font-size: 2.5rem;">The Sandbox Annex</h2>
+                 <p class="subtitle">Reconstruct foundational ODE logic through 3D spatial retrieval and variable assembly.</p>
+            </div>
+
+            <div class="flex justify-center w-full">
+                <a href="ODEs 3D/index1.html" class="model-card card-game w-full max-w-md">
+                    <span class="card-number" style="color: #EC4899; background: rgba(236, 72, 153, 0.15);">GAME 01</span>
+                    <h3 class="card-title">ODEs 3D</h3>
+                    <p class="card-desc">An immersive FPS scavenger hunt across 4 levels. Hunt for parameters belonging to the Food, Nature, Capital, and Equity models. Locate every variable to successfully reconstruct the ODEs and complete the level</p>
+                    <span class="card-link-text" style="color: #EC4899;">Play Now &rarr;</span>
+                </a>
             </div>
 
         </section>
