@@ -72,7 +72,6 @@
         
         .header-container { text-align: left; margin-bottom: 3.5rem; }
         
-        /* ADJUSTED: Font size increased to 3.2rem for authority */
         .header-container h2 { 
             font-size: 3.2rem; 
             font-weight: 900; 
@@ -125,21 +124,34 @@
         
         .content-text:last-child { margin-bottom: 0; }
 
-        /* ADJUSTED: Clean, academic equation layout with premium hover scale */
-        .math-block {
-            padding: 1.5rem 0;
+        /* Scrollable Math Wrapper for long SPDE equations */
+        .math-wrapper {
+            width: 100%;
+            overflow-x: auto;
+            overflow-y: hidden;
             margin: 2.5rem auto;
+            padding-bottom: 0.75rem; /* Space for the scrollbar */
+        }
+        
+        .math-wrapper::-webkit-scrollbar { height: 6px; }
+        .math-wrapper::-webkit-scrollbar-track { background: var(--main-bg); border-radius: 10px; }
+        .math-wrapper::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 10px; }
+        .math-wrapper::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+
+        .math-block {
             text-align: center;
             font-size: 1.35rem;
             color: var(--text-dark);
-            max-width: 650px;
+            min-width: min-content; /* Ensure block stretches rather than breaking on small screens */
             transition: transform 0.25s ease;
         }
-        .math-block:hover {
-            transform: scale(1.01);
+        
+        /* Subtle lift instead of scale to prevent horizontal clipping issues inside the wrapper */
+        .math-wrapper:hover .math-block {
+            transform: translateY(-2px);
         }
 
-        /* ADJUSTED: Lighter, more refined highlight box */
+        /* Highlight box */
         .highlight-box {
             background: #F8FAFF;
             border-left: 3px solid var(--accent-pri);
@@ -154,12 +166,9 @@
            MOBILE ADJUSTMENTS ONLY (Max Width 768px)
            ========================================= */
         @media (max-width: 768px) {
-            /* Reduce page padding so it doesn't squish the content */
             .page-section {
                 padding: 1.5rem 5% 3rem 5% !important;
             }
-
-            /* Shrink main title and subtitle */
             .header-container {
                 margin-bottom: 2rem !important;
             }
@@ -170,43 +179,21 @@
                 font-size: 1rem !important;
                 line-height: 1.5 !important;
             }
-
-            /* Tighten up the gap between the two main columns */
-            .grid {
-                gap: 2rem !important;
-                margin-top: 1.5rem !important;
-            }
-
-            /* Shrink padding inside the citation and artifact cards */
-            .citation-card {
-                padding: 1.25rem 1rem !important;
-                gap: 0.75rem !important;
-            }
-            .citation-card p.text-lg {
-                font-size: 0.95rem !important;
-            }
-            .artifact-card {
+            .content-card {
                 padding: 1.5rem !important;
             }
-
-            /* Shrink MathJax equations and prevent them from breaking the screen width */
-            .math-block {
-                font-size: 0.95rem !important;
+            .math-wrapper {
                 margin: 1.5rem auto !important;
-                padding: 1rem 0 !important;
-                overflow-x: auto !important;
-                overflow-y: hidden !important;
             }
-
-            /* Make footer wrap naturally */
+            .math-block {
+                font-size: 1.0rem !important; /* Scale down equations specifically for mobile */
+            }
             footer {
                 height: auto !important;
                 line-height: 1.5 !important;
                 padding: 1rem !important;
                 font-size: 0.75rem !important;
             }
-
-            /* Navbar logo adjustment */
             .text-\[1\.5rem\] {
                 font-size: 1.25rem !important;
             }
@@ -295,23 +282,31 @@
                     The foundational model evaluates the system as a localized, well-mixed point. We define four linked state variables that balance production, environmental health, wealth, and fairness:
                 </p>
                 
-                <div class="math-block">
-                    $$ \frac{dF}{dt} = \alpha C N u_p - \beta P - \gamma F $$
+                <div class="math-wrapper">
+                    <div class="math-block">
+                        $$ \frac{dF}{dt} = \alpha C N u_p - \min(\beta P, F) - \gamma F $$
+                    </div>
                 </div>
                 <p class="content-text text-sm text-center text-slate-500 -mt-6 mb-10"><strong>Food Production Dynamics:</strong> Tracks agricultural biomass generation versus population consumption and waste.</p>
 
-                <div class="math-block">
-                    $$ \frac{dN}{dt} = r N \left(1 - \frac{N}{K}\right) - \delta F u_p + \sigma u_s $$
+                <div class="math-wrapper">
+                    <div class="math-block">
+                        $$ \frac{dN}{dt} = r N \left(1 - \frac{N}{K}\right) - \delta F u_p + \sigma u_s $$
+                    </div>
                 </div>
                 <p class="content-text text-sm text-center text-slate-500 -mt-6 mb-10"><strong>Natural Resource Health:</strong> Models logistic ecological regeneration against the degradation of aggressive industrial farming.</p>
 
-                <div class="math-block">
-                    $$ \frac{dC}{dt} = p_{margin} (\beta P) - c F - (u_s + u_e) C $$
+                <div class="math-wrapper">
+                    <div class="math-block">
+                        $$ \frac{dC}{dt} = p_{margin} \min(\beta P, F) - c F - (u_s + u_e) C $$
+                    </div>
                 </div>
                 <p class="content-text text-sm text-center text-slate-500 -mt-6 mb-10"><strong>Economic Capital:</strong> Calculates the state GDP, funded by food sales and drained by production costs and policy intervention taxes.</p>
 
-                <div class="math-block">
-                    $$ \frac{dEq}{dt} = k_1 u_e + k_2 \max(0, F - D) - \mu Eq $$
+                <div class="math-wrapper">
+                    <div class="math-block">
+                        $$ \frac{dEq}{dt} = k_1 u_e + k_2 \max(0, F - D) - \mu Eq $$
+                    </div>
                 </div>
                 <p class="content-text text-sm text-center text-slate-500 -mt-6 mb-12"><strong>Equity Index:</strong> Measures social fairness, improving through active government funding or massive biological food surpluses.</p>
 
@@ -321,13 +316,17 @@
                     Real-world food systems are spatially heterogeneous. To account for physical supply chains and regional market shocks, we transition the highly mobile variables (Food and Capital) into SPDEs. We introduce the Laplacian operator (\( \nabla^2 \)) to model physical diffusion and a Gaussian white noise term (\( dW \)) to model unpredictable environmental volatility:
                 </p>
 
-                <div class="math-block">
-                    $$ dF = \left( \alpha C N u_p - \beta P - \gamma F + D_F \frac{\partial^2 F}{\partial x^2} \right) dt + \sigma_F F dW_F $$
+                <div class="math-wrapper">
+                    <div class="math-block">
+                        $$ dF = \left( \alpha C N u_p - \min(\beta P, F) - \gamma F + D_F \frac{\partial^2 F}{\partial x^2} \right) dt + \sigma_F F dW_F $$
+                    </div>
                 </div>
                 <p class="content-text text-sm text-center text-slate-500 -mt-6 mb-10"><strong>Spatial Food Logistics:</strong> Simulates trucks moving surplus food across infrastructure (\( D_F \)) while weathering regional agricultural shocks.</p>
 
-                <div class="math-block">
-                    $$ dC = \left( p_{margin} (\beta P) - c F - (u_s + u_e) C + D_C \frac{\partial^2 C}{\partial x^2} \right) dt + \sigma_C C dW_C $$
+                <div class="math-wrapper">
+                    <div class="math-block">
+                        $$ dC = \left( p_{margin} \min(\beta P, F) - c F - (u_s + u_e) C + D_C \frac{\partial^2 C}{\partial x^2} \right) dt + \sigma_C C dW_C $$
+                    </div>
                 </div>
                 <p class="content-text text-sm text-center text-slate-500 -mt-6 mb-8"><strong>Spatial Capital Flow:</strong> Simulates financial wealth flowing back to agrarian hubs (\( D_C \)) while enduring localized economic volatility.</p>
                 
