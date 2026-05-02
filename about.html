@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>History & Framework</title>
+    <title>Model Architecture & Framework</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -253,18 +253,18 @@
                     Project Introduction
                 </h3>
                 <p class="content-text">
-                    This project models the complex bioeconomic dynamics of a national food system. While traditional models evaluate agriculture purely as an economic venture, real-world systems are fundamentally bound by environmental and social constraints.
+                    This project models the complex bioeconomic dynamics of a national food system. While many traditional models typically evaluate agriculture purely as an economic venture, in real-world systems, they are fundamentally bound by environmental and social constraints.
                 </p>
                 <p class="content-text">
                     By merging these disciplines, we analyze how agricultural biomass is generated under environmental limits while simultaneously tracking the economic capital and social equity of the state. 
                 </p>
                 <div class="highlight-box">
                     <p class="content-text" style="margin: 0; color: #1E3A8A; font-weight: 600;">
-                        The objective is to progressively advance from static baseline Ordinary Differential Equations (ODEs) to highly complex, spatial Stochastic Partial Differential Equations (SPDEs)—evaluating dynamic policy feedback and supply chain logistics.
+                        The main objective is to progressively advance from static baseline Ordinary Differential Equations (ODEs) to highly complex, spatial Stochastic Partial Differential Equations (SPDEs) by evaluating dynamic policy feedback and supply chain logistics.
                     </p>
                 </div>
                 <p class="content-text">
-                    The systemic architecture utilizes the Method of Lines and Euler-Maruyama integration to numerically solve these spatial equations. This web application translates that quantitative mathematical foundation directly into an interactive, browser-based playground.
+                    The system design uses the Method of Lines and Euler-Maruyama integration to solve these spatial equations numerically. In this web application, it translates a quantitative mathematical foundation directly into an interactive, browser-based playground.
                 </p>
             </div>
 
@@ -279,7 +279,7 @@
                 <h4 class="text-xl font-semibold text-slate-800 mt-6 mb-3 tracking-tight">Temporal Dynamics (The 4 ODEs)</h4>
                 
                 <p class="content-text">
-                    The foundational model evaluates the system as a localized, well-mixed point. We define four linked state variables that balance production, environmental health, wealth, and fairness:
+                    The general model evaluates the system as a localized, well-mixed point. We define four linked state variables that balance food production, natural health, capital, and equity:
                 </p>
                 
                 <div class="math-wrapper">
@@ -313,7 +313,7 @@
 
                 <h4 class="text-xl font-semibold text-slate-800 mt-12 mb-3 tracking-tight">Spatial Logistics & Market Shocks (The 2 SPDEs)</h4>
                 <p class="content-text">
-                    Real-world food systems are spatially heterogeneous. To account for physical supply chains and regional market shocks, we transition the highly mobile variables (Food and Capital) into SPDEs. We introduce the Laplacian operator (\( \nabla^2 \)) to model physical diffusion and a Gaussian white noise term (\( dW \)) to model unpredictable environmental volatility:
+                    The real-world food systems are spatially heterogeneous. To take account for any physical supply chains and regional market shocks, we transition the highly mobile variables (Food and Capital) into SPDEs. By introducing the Laplacian operator (\( \nabla^2 \)) to model physical diffusion and a Gaussian white noise term (\( dW \)), this models the unpredictable environmental volatility:
                 </p>
 
                 <div class="math-wrapper">
@@ -331,7 +331,7 @@
                 <p class="content-text text-sm text-center text-slate-500 -mt-6 mb-8"><strong>Spatial Capital Flow:</strong> Simulates financial wealth flowing back to agrarian hubs (\( D_C \)) while enduring localized economic volatility.</p>
                 
                 <p class="content-text mt-8 border-t border-slate-100 pt-6">
-                    The interactive implementation of these models can be explored within the <strong>Playground</strong>, where users can adjust policy parameters and observe the resulting system dynamics in real time.
+                    The interactive implementation of these models can be explored within the <strong>Playground</strong>, where users can adjust policy parameters and observe the results of the system dynamics in real time.
                 </p>
 
             </div>
