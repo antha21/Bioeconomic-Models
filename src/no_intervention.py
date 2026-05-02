@@ -1,4 +1,4 @@
-# Immediate Intervention
+# No intervention
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -52,64 +52,42 @@ results = {}
 
 # 4. Run the Simulation for Each State
 for state_name, params in scenarios.items():
+    # Calculate the scaling factor for this specific state
     P = params['pop']
     scale = P / BASE_POP
     
+    # Scale the Volume-Based variables (Food, Capital, Demand)
     D = BASE_D * scale
     F_start = params['base_y0'][0] * scale
     C_start = params['base_y0'][2] * scale
     
+    # The Indexes (Nature, Equity) remain unscaled (0 to 1)
     N_start = params['base_y0'][1]
     Eq_start = params['base_y0'][3]
     
+    # Inversely scale constants interacting with indexes to maintain proportions
     delta = params['base_delta'] / scale
     k2 = BASE_k2 / scale
-    
+
+    # Extract remaining parameters
     alpha = params['alpha']
     gamma = params['gamma']
     
+    # Create empty arrays
     F = np.zeros(len(t))
     N = np.zeros(len(t))
     C = np.zeros(len(t))
     Eq = np.zeros(len(t))
-
+    
+    # Set initial conditions
     F[0], N[0], C[0], Eq[0] = F_start, N_start, C_start, Eq_start
-
-    # NEW: Variables to track exactly when a crisis policy overrides the default
-    policy_triggered = False
-    trigger_year = None
-
+    
     # Run the Euler Method
     for i in range(1, len(t)):
-        # FIX: Define prev variables BEFORE checking them in the if statements
-        prev_F, prev_N, prev_C, prev_Eq = F[i-1], N[i-1], C[i-1], Eq[i-1]
-        
-        # Default balanced state
         up, us, ue = 0.7, 0.02, 0.02    
-
-        # Track if any override is currently active
-        is_crisis = False
-    
-        # 1. Emergency Food Crisis Override
-        if prev_F < D * 1.1:  
-            up, us, ue = 0.8, 0.05, 0.05
-            is_crisis = True
-
-        # 2. Environmental Collapse Override
-        elif prev_N < 0.4:  
-            up, us, ue = 0.4, 0.5, 0.1
-            is_crisis = True
         
-        # 3. Economic Crisis Override
-        elif prev_C < 20.0 * scale: 
-            up, us, ue = 0.6, 0.2, 0.2
-            is_crisis = True
-            
-        # Record the exact year the crisis override kicked in for the FIRST time
-        if is_crisis and not policy_triggered:
-            policy_triggered = True
-            trigger_year = t[i]
-        
+        prev_F, prev_N, prev_C, prev_Eq = F[i-1], N[i-1], C[i-1], Eq[i-1]   
+      
         # 1. Calculate how much food can actually be sold
         # It's either the full population demand, or whatever food is left—whichever is smaller.
         actual_sales = min(beta * P, prev_F)
@@ -119,27 +97,23 @@ for state_name, params in scenarios.items():
         dN = r * prev_N * (1 - prev_N / K) - delta * prev_F * up + sigma * us
         dC = p_margin * actual_sales - c * prev_F - (us + ue) * prev_C
         dEq = k1 * ue + k2 * max(0, prev_F - D) - mu * prev_Eq
-
+        
         
         # Euler update with max(0, ...) boundary enforcement
         F[i] = max(0, prev_F + (dF * dt))
         N[i] = max(0, prev_N + (dN * dt))
         C[i] = max(0, prev_C + (dC * dt))
         #Eq[i] = max(0, prev_Eq + (dEq * dt))
-
+    
         # Caps Equity at 1.0, while keeping the floor at 0
-        Eq[i] = min(1.0, max(0, prev_Eq + (dEq * dt)))
+        Eq[i] = min(1.0, max(0, prev_Eq + (dEq * dt)))        
 
-    # Store results, passing the trigger year to the dictionary
-    results[state_name] = {
-        'F': F, 'N': N, 'C': C, 'Eq': Eq, 
-        'color': params['color'],
-        'trigger': trigger_year
-    }
+    # Store results for plotting
+    results[state_name] = {'F': F, 'N': N, 'C': C, 'Eq': Eq, 'color': params['color']}
 
 # 5. Generate the Plot
 fig, axs = plt.subplots(2, 2, figsize=(14, 10))
-fig.suptitle('Food System Transitions by State: Louisiana, Connecticut, New Hampshire', fontsize=16, fontweight='bold')
+fig.suptitle('Food Systems by State: Louisiana, Connecticut, New Hampshire', fontsize=16, fontweight='bold')
 
 variables = [
     ('F', 'Food Production Dynamics', 'Total Food / Biomass (Millions of Units)', axs[0, 0]),
@@ -150,22 +124,15 @@ variables = [
 
 for key, title, ylabel, ax in variables:
     for name, data in results.items():
+        # For readability, plot Food and Capital in millions (divided by 1,000,000)
         plot_data = data[key] / 1000000 if key in ['F', 'C'] else data[key]
         ax.plot(t, plot_data, label=name, color=data['color'], linewidth=2)
         
-        # NEW: Draw a vertical line where the policy override kicked in
-        if data['trigger'] is not None:
-            ax.axvline(data['trigger'], color=data['color'], linestyle=':', alpha=0.8, linewidth=2)
-
     ax.set_title(title, fontsize=12)
     ax.set_xlabel('Time (Years)')
     ax.set_ylabel(ylabel)
     ax.grid(True, alpha=0.3)
-    
-    # Condense legend so it only prints state names, not the dotted lines
-    handles, labels = ax.get_legend_handles_labels()
-    by_label = dict(zip(labels, handles))
-    ax.legend(by_label.values(), by_label.keys(), loc='best', fontsize=9)
+    ax.legend(loc='best', fontsize=9)
 
 plt.tight_layout(rect=[0, 0.03, 1, 0.95])
 plt.show()
