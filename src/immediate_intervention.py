@@ -1,4 +1,4 @@
-# Political Delay
+# Immediate Intervention
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -25,11 +25,6 @@ scenarios = {
         'alpha': 0.3,
         'gamma': 0.07,
         'base_delta': 0.001,
-        'intervention_year': 6,  # Acts quickly due to food crisis
-        # Louisiana's specific Food Crisis Policy
-        'policy_up': 0.8,
-        'policy_us': 0.05,
-        'policy_ue': 0.05,
         'color': 'red'
     },
     'Connecticut (Avg Insecurity)': {
@@ -38,24 +33,14 @@ scenarios = {
         'alpha': 0.25,
         'gamma': 0.04,
         'base_delta': 0.001,
-        'intervention_year': 22, 
-        # Connecticut's specific Environmental Bailout Policy
-        'policy_up': 0.4,
-        'policy_us': 0.50,
-        'policy_ue': 0.10,
         'color': 'orange'
     },
      'New Hampshire (Low Insecurity)': {
         'pop': 1400000,
-        'base_y0': [130.0, 0.90, 70.0, 0.85], 
-        'alpha': 0.28,       
-        'gamma': 0.03,       
-        'base_delta': 0.0002, 
-        'intervention_year': 30,  
-        # New Hampshire's Preventative Maintenance Policy
-        'policy_up': 0.5,
-        'policy_us': 0.05,
-        'policy_ue': 0.05,
+        'base_y0': [130.0, 0.90, 70.0, 0.85], # [Moderate Food, High Nature, High Capital, High Equity]
+        'alpha': 0.28,       # Lower crop yield rate
+        'gamma': 0.03,       # Lower waste rate
+        'base_delta': 0.0002, # Very low environmental degradation
         'color': 'green'
     }
 }
@@ -73,72 +58,91 @@ for state_name, params in scenarios.items():
     D = BASE_D * scale
     F_start = params['base_y0'][0] * scale
     C_start = params['base_y0'][2] * scale
+    
     N_start = params['base_y0'][1]
     Eq_start = params['base_y0'][3]
     
     delta = params['base_delta'] / scale
     k2 = BASE_k2 / scale
+    
     alpha = params['alpha']
     gamma = params['gamma']
-    target_year = params['intervention_year'] 
     
     F = np.zeros(len(t))
     N = np.zeros(len(t))
     C = np.zeros(len(t))
     Eq = np.zeros(len(t))
-    
+
     F[0], N[0], C[0], Eq[0] = F_start, N_start, C_start, Eq_start
-    
+
+    # NEW: Variables to track exactly when a crisis policy overrides the default
     policy_triggered = False
     trigger_year = None
-    
+
+    # Run the Euler Method
     for i in range(1, len(t)):
+        # FIX: Define prev variables BEFORE checking them in the if statements
         prev_F, prev_N, prev_C, prev_Eq = F[i-1], N[i-1], C[i-1], Eq[i-1]
         
-        # Check against this specific state's intervention year
-        if t[i-1] < target_year:
-            # Phase 1: High Profit Drive (Default for everyone)
-            up, us, ue = 0.7, 0.02, 0.02    
-        else:
-            # Phase 2: NEW - Pulls the specific policy from the dictionary!
-            up = params['policy_up']
-            us = params['policy_us']
-            ue = params['policy_ue']
-            
-            # Record the year for the graph
-            if not policy_triggered:
-                policy_triggered = True
-                trigger_year = t[i]
-            
-        # NEW: Restored the Economic and Equity math fixes so LA survives
-        actual_sales = min(beta * P, prev_F)
+        # Default balanced state
+        up, us, ue = 0.7, 0.02, 0.02    
+
+        # Track if any override is currently active
+        is_crisis = False
+    
+        # 1. Emergency Food Crisis Override
+        if prev_F < D * 1.1:  
+            up, us, ue = 0.8, 0.05, 0.05
+            is_crisis = True
+
+        # 2. Environmental Collapse Override
+        elif prev_N < 0.4:  
+            up, us, ue = 0.4, 0.5, 0.1
+            is_crisis = True
         
-        # Calculate derivatives
+        # 3. Economic Crisis Override
+        elif prev_C < 20.0 * scale: 
+            up, us, ue = 0.6, 0.2, 0.2
+            is_crisis = True
+            
+        # Record the exact year the crisis override kicked in for the FIRST time
+        if is_crisis and not policy_triggered:
+            policy_triggered = True
+            trigger_year = t[i]
+        
+        # 1. Calculate how much food can actually be sold
+        # It's either the full population demand, or whatever food is left—whichever is smaller.
+        actual_sales = min(beta * P, prev_F)
+
+        # 2. Update derivatives (using actual_sales instead of beta * P for revenue)
         dF = alpha * prev_C * prev_N * up - actual_sales - gamma * prev_F
         dN = r * prev_N * (1 - prev_N / K) - delta * prev_F * up + sigma * us
         dC = p_margin * actual_sales - c * prev_F - (us + ue) * prev_C
         dEq = k1 * ue + k2 * max(0, prev_F - D) - mu * prev_Eq
+
         
-        # Euler update
+        # Euler update with max(0, ...) boundary enforcement
         F[i] = max(0, prev_F + (dF * dt))
         N[i] = max(0, prev_N + (dN * dt))
         C[i] = max(0, prev_C + (dC * dt))
-        
+        #Eq[i] = max(0, prev_Eq + (dEq * dt))
+
         # Caps Equity at 1.0, while keeping the floor at 0
         Eq[i] = min(1.0, max(0, prev_Eq + (dEq * dt)))
 
+    # Store results, passing the trigger year to the dictionary
     results[state_name] = {
         'F': F, 'N': N, 'C': C, 'Eq': Eq, 
-        'color': params['color'], 
+        'color': params['color'],
         'trigger': trigger_year
     }
 
-# 5. Generate the Plot with Dynamic Policy Lines
+# 5. Generate the Plot
 fig, axs = plt.subplots(2, 2, figsize=(14, 10))
-fig.suptitle('Hardcoded Policy Interventions by State', fontsize=16, fontweight='bold')
+fig.suptitle('Food System Transitions by State: Louisiana, Connecticut, New Hampshire', fontsize=16, fontweight='bold')
 
 variables = [
-    ('F', 'Food Production Dynamics', 'Total Food / Biomass (Millions)', axs[0, 0]),
+    ('F', 'Food Production Dynamics', 'Total Food / Biomass (Millions of Units)', axs[0, 0]),
     ('N', 'Natural Resource Health', 'Health Index (0 to 1)', axs[0, 1]),
     ('C', 'Economic Capital', 'Capital (Wealth in Millions)', axs[1, 0]),
     ('Eq', 'Equity Index', 'Equity (0 to 1)', axs[1, 1])
@@ -146,20 +150,19 @@ variables = [
 
 for key, title, ylabel, ax in variables:
     for name, data in results.items():
-        # Scale down large numbers for readability on the Y-axis
         plot_data = data[key] / 1000000 if key in ['F', 'C'] else data[key]
         ax.plot(t, plot_data, label=name, color=data['color'], linewidth=2)
         
-        # Draw a vertical line exactly where this state's policy kicked in
+        # NEW: Draw a vertical line where the policy override kicked in
         if data['trigger'] is not None:
             ax.axvline(data['trigger'], color=data['color'], linestyle=':', alpha=0.8, linewidth=2)
-            
+
     ax.set_title(title, fontsize=12)
     ax.set_xlabel('Time (Years)')
     ax.set_ylabel(ylabel)
     ax.grid(True, alpha=0.3)
     
-    # Ensure legend only prints state names, not a million policy lines
+    # Condense legend so it only prints state names, not the dotted lines
     handles, labels = ax.get_legend_handles_labels()
     by_label = dict(zip(labels, handles))
     ax.legend(by_label.values(), by_label.keys(), loc='best', fontsize=9)
